@@ -15,6 +15,18 @@ const App = (() => {
     const [path, ...params] = hash.split("/");
     const param = params.join("/");
 
+    // Vérification du verrou d'accès confidentiel
+    if (!Store.s.unlocked) {
+      if (curView && Views[curView] && Views[curView].unmount) {
+        Views[curView].unmount();
+      }
+      curView = "lock";
+      container().innerHTML = Views.lock.render();
+      renderNav(null);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     if (!Store.s.onboarded && path !== "welcome") {
       location.hash = "#/welcome";
       return;
@@ -302,6 +314,10 @@ const App = (() => {
         dl.setAttribute("href", dataStr);
         dl.setAttribute("download", `mon-parcours-auditif-${dayKey()}.json`);
         dl.click();
+      } else if (act === "lock-app") {
+        Store.update(s => { s.unlocked = false; });
+        toast("Application reverrouillée");
+        route();
       } else if (act === "reset") {
         if (confirm("Voulez-vous réinitialiser toutes les données de l'application ?")) {
           Store.reset();
@@ -375,6 +391,25 @@ const App = (() => {
       e.preventDefault();
       const name = form.dataset.form;
       const data = new FormData(form);
+
+      if (name === "lock") {
+        const code = data.get("code") || "";
+        const ok = Store.checkAccessCode(code);
+        if (ok) {
+          toast("Code d'accès validé ! Bienvenue ✔");
+          location.hash = Store.s.onboarded ? "#/home" : "#/welcome";
+          route();
+        } else {
+          const errEl = document.getElementById("lock-err");
+          if (errEl) errEl.style.display = "flex";
+          const inputEl = document.getElementById("lock-input");
+          if (inputEl) {
+            inputEl.value = "";
+            inputEl.focus();
+          }
+        }
+        return;
+      }
 
       if (name === "ob-profile") {
         OB.data.profile.firstName = data.get("firstName") || "";

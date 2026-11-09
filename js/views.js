@@ -21,6 +21,42 @@ const H = {
 
 const Views = {};
 
+/* =============================== ÉCRAN DE SÉCURITÉ / CODE D'ACCÈS =============================== */
+Views.lock = {
+  noTabs: true,
+  render() {
+    return `
+      <div class="lock-shell">
+        <div class="card lock-card">
+          <div class="brand-big center"><span class="brand-k">KRYS</span><span class="brand-a">AUDITION</span></div>
+          <div class="lock-ico center">${icon("lock")}</div>
+          <h2 class="center">Projet Confidentiel</h2>
+          <p class="muted center">Cette application est un prototype réservé au réseau Krys Audition. Veuillez renseigner le code d'accès confidentiel pour déverrouiller l'accès.</p>
+
+          <form data-form="lock" class="form mt-sm">
+            <label>Code d'accès confidentiel
+              <input type="text" name="code" id="lock-input" placeholder="Ex. : KRYS2026" autofocus autocomplete="off" required>
+            </label>
+            <button class="btn btn-primary btn-block btn-lg mt-xs">${icon("check")} Déverrouiller l'application</button>
+            <div id="lock-err" class="note-box warn mt-sm" style="display:none;">
+              ${icon("alert")}
+              <div>Code incorrect. Veuillez vérifier ou contacter l'audioprothésiste.</div>
+            </div>
+          </form>
+
+          <div class="note-box soft mt">
+            ${icon("shield")}
+            <div>
+              <b>Accès sur invitation :</b><br>
+              Pour obtenir un code d'accès, contactez <b>Benjamin Joseph COHEN</b>, audioprothésiste D.E. Cnam Paris (07 68 15 86 96 / binyamine555@gmail.com).
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+};
+
 /* =============================== ONBOARDING =============================== */
 let OB = { step: 0, data: null };
 Views.welcome = {
@@ -690,7 +726,11 @@ Views.profile = {
         <label class="check"><input type="checkbox" data-action-input="consent-audiogram" ${s.consent.audiogram ? "checked" : ""}><span>Utiliser mon audiogramme pour personnaliser l'entraînement</span></label>
         <label class="check"><input type="checkbox" data-action-input="consent-share" ${s.consent.shareWithCenter ? "checked" : ""}><span>Partager mes progrès avec mon audioprothésiste</span></label>
         <label class="check"><input type="checkbox" data-action-input="consent-notif" ${s.consent.notifications ? "checked" : ""}><span>Recevoir des rappels</span></label>
-        <div class="btn-row"><button class="btn btn-ghost btn-sm" data-action="export">${icon("download")} Exporter mes données</button><button class="btn btn-ghost btn-sm danger" data-action="reset">${icon("trash")} Tout supprimer</button></div>
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm" data-action="export">${icon("download")} Exporter mes données</button>
+          <button class="btn btn-ghost btn-sm" data-action="lock-app">${icon("lock")} Verrouiller l'accès</button>
+          <button class="btn btn-ghost btn-sm danger" data-action="reset">${icon("trash")} Tout supprimer</button>
+        </div>
         <a href="#" data-action="privacy" class="link small">Politique de confidentialité (résumé)</a>
       </section>
 

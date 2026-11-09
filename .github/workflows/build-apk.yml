@@ -49,37 +49,32 @@ jobs:
 
       - name: Prepare APK for Release
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.1.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.apk
+          path: krys-audition-v1.0.1.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: "Krys Audition – Mon Parcours Auditif (v1.0)"
+          tag_name: v1.0.1
+          name: "Krys Audition – Mon Parcours Auditif (v1.0.1 - Accès Protégé)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition
+            ### 📱 Application Mobile Android – Krys Audition (Version Sécurisée)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
-            #### 📥 Téléchargement direct :
-            Cliquez sur le fichier ci-dessous pour installer l'application sur votre smartphone Android :
-            - **[Télécharger krys-audition-v1.0.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.0/krys-audition-v1.0.apk)**
+            #### 🔒 Accès Restreint & Confidentiel :
+            L'accès à l'application est protégé par un code de sécurité confidentiel afin de réserver l'évaluation aux professionnels et partenaires autorisés.
+            - **Code d'accès par défaut :** `KRYS2026`
 
-            #### ✨ Fonctionnalités incluses :
-            - **Répertoire National Krys Audition** : recherche par code postal, ville, région et géolocalisation avec appel direct et itinéraire.
-            - **Étalonnage Acoustique Smartphone** : calibrage à la voix, froissement de papier biologique normé (~48 dBA), test 1 000 Hz et sonomètre ambiant FFT.
-            - **Entraînement Auditif Personnalisé** : discrimination phonétique, mots dans le bruit, test DIN adaptatif, phrases du quotidien et mémoire auditive dans 4 bruits réels (restaurant, circulation, vaisselle, bruit rose).
-            - **Bilans Cliniques Complets** : audiométrie tonale (VA/VO, BIAP, SII), vocale dans le calme (Fournier, SDT, SRT 50%, PB-Max, Roll-off) et compréhension dans le bruit (SNR-50, SNR Loss).
-            - **Pédagogie & Neuroplasticité** : explications vulgarisées pour le patient.
-            - **Questionnaire d'Anamnèse & Analyseur Local** : respect strict des données de santé (RGPD).
+            #### 📥 Téléchargement direct :
+            - **[Télécharger krys-audition-v1.0.1.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.1/krys-audition-v1.0.1.apk)**
           files: |
-            krys-audition-v1.0.apk
+            krys-audition-v1.0.1.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

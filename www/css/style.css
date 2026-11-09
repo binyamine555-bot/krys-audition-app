@@ -981,6 +981,64 @@ body.wide-mode .app-main {
   vertical-align: middle;
 }
 
+/* ---------------- Écran de Verrouillage / Code d'Accès ---------------- */
+.lock-shell {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.lock-card {
+  width: 100%;
+  max-width: 440px;
+  border-top: 5px solid var(--krys-navy);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+}
+
+.lock-ico {
+  margin: 16px auto 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #e0f2fe;
+  color: var(--krys-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-ico svg {
+  width: 28px;
+  height: 28px;
+}
+
+.brand-big {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.brand-big .brand-k {
+  font-size: 1.6rem;
+  color: var(--krys-navy);
+}
+
+.brand-big .brand-a {
+  font-size: 1.05rem;
+  color: #fff;
+  background-color: var(--krys-red);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 900;
+}
+
 /* Helpers */
 .center { text-align: center; }
 .muted { color: var(--text-muted); font-size: 0.85rem; }

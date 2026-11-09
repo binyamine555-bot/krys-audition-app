@@ -8,8 +8,11 @@
 const Store = (() => {
   const KEY = "krysAudio.v1";
 
+  const VALID_CODES = ["KRYS2026", "KRYS", "2026", "AUDITION", "BENJAMIN"];
+
   const defaults = () => ({
     version: 1,
+    unlocked: false,
     onboarded: false,
     demo: false,
     profile: { firstName: "", lastName: "", centerId: "c-75011", fittingDate: dayKey(), deviceType: "ric", power: "rechargeable", brand: "" },
@@ -51,7 +54,7 @@ const Store = (() => {
     const s = defaults();
     const today = new Date();
     const fitting = addDays(today, -26);
-    s.onboarded = true; s.demo = true;
+    s.onboarded = true; s.demo = true; s.unlocked = true;
     s.profile = { firstName: "Monique", lastName: "Durand", centerId: "c-75011", fittingDate: dayKey(fitting), deviceType: "ric", power: "rechargeable", brand: "Contour RIC rechargeable" };
     s.consent = { audiogram: true, notifications: true, shareWithCenter: true, date: fitting.toISOString() };
     const p = AUDIOGRAM_PRESETS.presbyMod;
@@ -147,9 +150,21 @@ const Store = (() => {
     state = s; save();
   }
 
+  function checkAccessCode(code) {
+    if (!code) return false;
+    const clean = String(code).trim().toUpperCase();
+    if (VALID_CODES.includes(clean)) {
+      state.unlocked = true;
+      save();
+      return true;
+    }
+    return false;
+  }
+
   return {
     get s() { return state; },
     save, reset, loadDemo,
+    checkAccessCode,
     update(fn) { fn(state); save(); }
   };
 })();

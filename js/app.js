@@ -16,7 +16,9 @@ const App = (() => {
     const param = params.join("/");
 
     // Vérification du verrou d'accès confidentiel
+    const headerRight = document.querySelector(".header-right");
     if (!Store.s.unlocked) {
+      if (headerRight) headerRight.style.display = "none";
       if (curView && Views[curView] && Views[curView].unmount) {
         Views[curView].unmount();
       }
@@ -26,6 +28,7 @@ const App = (() => {
       window.scrollTo(0, 0);
       return;
     }
+    if (headerRight) headerRight.style.display = "";
 
     if (!Store.s.onboarded && path !== "welcome") {
       location.hash = "#/welcome";

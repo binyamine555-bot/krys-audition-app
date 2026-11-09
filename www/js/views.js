@@ -19,7 +19,7 @@ const H = {
   powerLabel: () => Store.s.profile.power === "rechargeable" ? "Rechargeable" : "À piles"
 };
 
-const Views = {};
+var Views = window.Views = window.Views || {};
 
 /* =============================== ÉCRAN DE SÉCURITÉ / CODE D'ACCÈS =============================== */
 Views.lock = {
@@ -733,6 +733,9 @@ Views.profile = {
         </div>
         <a href="#" data-action="privacy" class="link small">Politique de confidentialité (résumé)</a>
       </section>
+    `;
+  }
+};
 
 /* ============================= ÉTALONNAGE SMARTPHONE ============================= */
 Views.calibration = {

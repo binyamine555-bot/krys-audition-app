@@ -49,32 +49,37 @@ jobs:
 
       - name: Prepare APK for Release
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.1.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.2.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.1.apk
+          path: krys-audition-v1.0.2.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.1
-          name: "Krys Audition – Mon Parcours Auditif (v1.0.1 - Accès Protégé)"
+          tag_name: v1.0.2
+          name: "Krys Audition – Mon Parcours Auditif (v1.0.2 - Fix Affichage & Sécurisation)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version Sécurisée)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.2 Corrigée & Testée)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
-            #### 🔒 Accès Restreint & Confidentiel :
-            L'accès à l'application est protégé par un code de sécurité confidentiel afin de réserver l'évaluation aux professionnels et partenaires autorisés.
-            - **Code d'accès par défaut :** `KRYS2026`
+            #### 🔒 Code d'accès confidentiel :
+            L'évaluation du prototype est protégée par un code d'accès :
+            - **Code à saisir dans l'application :** `KRYS2026`
+
+            #### 🛠️ Correctifs apportés :
+            - Résolution complète du bug de l'écran blanc sous le bandeau bleu.
+            - Masquage des onglets supérieurs tant que le code confidentiel n'a pas été validé.
+            - Affichage immédiat et fluide de l'écran de sécurité et de l'ensemble des modules une fois déverrouillé (Accueil, Entraînement phonétique et vocal dans le silence/bruit, Étalonnage mobile, Répertoire 100+ centres Krys en France, Espace Pro Audioprothésiste).
 
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.0.1.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.1/krys-audition-v1.0.1.apk)**
+            - **[Télécharger krys-audition-v1.0.2.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.2/krys-audition-v1.0.2.apk)**
           files: |
-            krys-audition-v1.0.1.apk
+            krys-audition-v1.0.2.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

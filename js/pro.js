@@ -118,4 +118,5 @@ const Pro = (() => {
   return { render };
 })();
 
-Views.pro = { noTabs: true, wide: true, render: (id) => Pro.render(id) };
+window.Views = window.Views || {};
+window.Views.pro = { noTabs: true, wide: true, render: (id) => Pro.render(id) };

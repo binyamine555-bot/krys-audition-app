@@ -831,6 +831,29 @@ Views.profile = {
         <button class="btn btn-ghost" data-action="test-voice">${icon("volume")} Tester</button>
       </section>
 
+      <!-- PROFIL D'ÉCOUTE ET MODE DE DIFFUSION AUDIO -->
+      <section class="card form">
+        <div class="card-head-row">
+          <h3>Profil d'Écoute</h3>
+          <a href="#/calibration" class="btn btn-ghost btn-sm">${icon("sliders")} Étalonner</a>
+        </div>
+        <p class="muted">Sélectionnez votre mode de diffusion audio pour les entraînements et les tests :</p>
+        <div class="transducer-grid mt-sm">
+          ${Object.values(CalibrationEngine.TRANSDUCERS).map(t => {
+            const cal = CalibrationEngine.getStoredCalibration();
+            const isSel = (cal.transducer || "bluetooth_aids") === t.id;
+            return `
+            <div class="transducer-card ${isSel ? "selected" : ""}" data-action="cal-select-transducer" data-id="${t.id}" role="button" tabindex="0">
+              <input type="radio" name="transducer_prof" value="${t.id}" ${isSel ? "checked" : ""} data-action-input="cal-transducer" style="display:none;">
+              <div class="t-ico">${icon(t.icon)}</div>
+              <b>${esc(t.label)}</b>
+              <small>${esc(t.desc)}</small>
+              <span class="t-badge ${isSel ? "on" : ""}">${isSel ? "Actif ✔" : "Choisir"}</span>
+            </div>
+          `;}).join("")}
+        </div>
+      </section>
+
       <section class="card form"><h3>Confidentialité</h3>
         <label class="check"><input type="checkbox" data-action-input="consent-audiogram" ${s.consent.audiogram ? "checked" : ""}><span>Utiliser mon audiogramme pour personnaliser l'entraînement</span></label>
         <label class="check"><input type="checkbox" data-action-input="consent-share" ${s.consent.shareWithCenter ? "checked" : ""}><span>Partager mes progrès avec mon audioprothésiste</span></label>
@@ -856,18 +879,21 @@ Views.calibration = {
       <section class="card">
         <div class="card-head-row">
           <h3>Profil d'Écoute</h3>
-          <span class="pill ${cal.calibrated ? "ok" : "warn"}">${cal.calibrated ? "Étalonné ✔" : "Non étalonné"}</span>
+          <span class="pill ${cal.calibrated ? "ok" : "warn"}" id="cal-status-badge">${cal.calibrated ? "Étalonné ✔" : "Non étalonné"}</span>
         </div>
         <p class="muted">Pour que les exercices dans le bruit et les mesures en décibels soient fiables, l'application doit connaître votre mode d'écoute.</p>
         <div class="transducer-grid mt-sm">
-          ${Object.values(transducers).map(t => `
-            <label class="transducer-card ${cal.transducer === t.id ? "selected" : ""}">
-              <input type="radio" name="transducer" value="${t.id}" ${cal.transducer === t.id ? "checked" : ""} data-action-input="cal-transducer">
+          ${Object.values(transducers).map(t => {
+            const isSel = (cal.transducer || "bluetooth_aids") === t.id;
+            return `
+            <div class="transducer-card ${isSel ? "selected" : ""}" data-action="cal-select-transducer" data-id="${t.id}" role="button" tabindex="0">
+              <input type="radio" name="transducer" value="${t.id}" ${isSel ? "checked" : ""} data-action-input="cal-transducer" style="display:none;">
               <div class="t-ico">${icon(t.icon)}</div>
               <b>${esc(t.label)}</b>
               <small>${esc(t.desc)}</small>
-            </label>
-          `).join("")}
+              <span class="t-badge ${isSel ? "on" : ""}">${isSel ? "Actif ✔" : "Choisir"}</span>
+            </div>
+          `;}).join("")}
         </div>
       </section>
 

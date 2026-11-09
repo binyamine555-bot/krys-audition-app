@@ -41,8 +41,8 @@ jobs:
         run: |
           npx cap add android || true
           npx cap sync android
-          sed -i 's/versionCode 1/versionCode 110/g' android/app/build.gradle || true
-          sed -i 's/versionName "1.0"/versionName "1.1.0"/g' android/app/build.gradle || true
+          sed -i 's/versionCode 1/versionCode 111/g' android/app/build.gradle || true
+          sed -i 's/versionName "1.0"/versionName "1.1.1"/g' android/app/build.gradle || true
 
       - name: Build Android Debug APK
         run: |
@@ -54,45 +54,40 @@ jobs:
         run: |
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
           if [ -f "krys-release.keystore" ]; then
-            $BUILD_TOOLS_DIR/apksigner sign --ks krys-release.keystore --ks-pass pass:KrysAudition2026 --out krys-audition-v1.1.0.apk android/app/build/outputs/apk/debug/app-debug.apk || cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.1.0.apk
+            $BUILD_TOOLS_DIR/apksigner sign --ks krys-release.keystore --ks-pass pass:KrysAudition2026 --out krys-audition-v1.1.1.apk android/app/build/outputs/apk/debug/app-debug.apk || cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.1.1.apk
           else
-            cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.1.0.apk
+            cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.1.1.apk
           fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.1.0.apk
+          path: krys-audition-v1.1.1.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.0
-          name: "Krys Audition – Mon Parcours Auditif (v1.1.0 - Saisie Clavier Fluide & Recherche En Direct)"
+          tag_name: v1.1.1
+          name: "Krys Audition – Mon Parcours Auditif (v1.1.1 - Sélection Interactive du Profil d'Écoute)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version 1.1.0 - Saisie Fluide & Recherche En Direct)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.1.1 - Profil d'Écoute 100% Sélectionnable)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### ⌨️ Correctif Majeur sur le Clavier Mobile & la Recherche de Centres :
-            - **Maintien permanent du clavier Android :** La saisie dans le champ de recherche ne ferme plus le clavier virtuel après chaque lettre. Le clavier reste désormais toujours actif et ouvert pendant toute la frappe.
-            - **Filtrage instantané en temps réel :** La liste des plus de 560 centres Krys Audition s'actualise instantanément sous le champ de saisie sans aucun rechargement de page ni saut d'écran vers le haut.
-            - **Position du curseur préservée :** La saisie est totalement fluide, réactive et agréable sur smartphone et tablette.
-
-            #### 🗣️ Rappel des Performances Audio & Parole (v1.0.9) :
-            - Moteur vocal natif Android avec voix claire en français.
-            - Silence total et confort d'écoute en mode « Au calme ».
-            - 4 ambiances sonores fidèles (Restaurant, Rue, Vaisselle, Salon).
-            - Clé de signature permanente et `versionCode 110` pour une mise à jour directe sans conflit.
+            #### 🎧 Correctif Majeur sur le Profil d'Écoute & Transducteurs :
+            - **Sélection tactile immédiate :** Les 4 profils d'écoute (Streaming direct Aides Auditives, Casque circum-aural, Écouteurs intra-auriculaires, Haut-parleur du téléphone) sont désormais directement cliquables avec retour haptique et visuel immédiat.
+            - **Badges d'état dynamiques :** Chaque profil affiche distinctement son état (« Actif ✔ » ou « Choisir ») ainsi qu'un encadrement bleu Krys dès qu'il est touché.
+            - **Double accès :** Le profil d'écoute est désormais sélectionnable aussi bien depuis l'onglet « Étalonner mon mobile » que depuis la page « Mon profil ».
+            - **Prise en charge tactile & événements mobiles :** Écoute combinée des événements de clic, de contact tactile et de changement de formulaire pour garantir une sélection instantanée sur 100% des smartphones Android.
 
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.1.0.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.1.0/krys-audition-v1.1.0.apk)**
+            - **[Télécharger krys-audition-v1.1.1.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.1.1/krys-audition-v1.1.1.apk)**
           files: |
-            krys-audition-v1.1.0.apk
+            krys-audition-v1.1.1.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -151,6 +151,29 @@ const App = (() => {
             badgeEl.className = "pill " + (res.status === "ok" ? "ok" : "warn");
           }
         });
+      if (act === "cal-select-transducer") {
+        const tid = btn.dataset.id || btn.closest("[data-action='cal-select-transducer']")?.dataset.id;
+        if (tid) {
+          CalibrationEngine.saveCalibration({ transducer: tid });
+          document.querySelectorAll(`[data-action="cal-select-transducer"]`).forEach(c => {
+            const match = c.dataset.id === tid;
+            c.classList.toggle("selected", match);
+            const r = c.querySelector('input[type="radio"]');
+            if (r) r.checked = match;
+            const badge = c.querySelector(".t-badge");
+            if (badge) {
+              badge.classList.toggle("on", match);
+              badge.textContent = match ? "Actif ✔" : "Choisir";
+            }
+          });
+          const calBadge = document.getElementById("cal-status-badge");
+          if (calBadge) {
+            calBadge.className = "pill ok";
+            calBadge.textContent = "Étalonné ✔";
+          }
+          const tObj = CalibrationEngine.TRANSDUCERS[tid];
+          toast(`Profil d'écoute activé : ${tObj ? tObj.label : tid} ✔`);
+        }
       } else if (act === "cal-play-voice") {
         btn.disabled = true;
         const curCal = CalibrationEngine.getStoredCalibration();
@@ -416,8 +439,8 @@ const App = (() => {
       }
     });
 
-    // Événements d'entrée de formulaire en temps réel
-    document.addEventListener("input", e => {
+    // Événements d'entrée et de changement de formulaire en temps réel
+    function handleFormInput(e) {
       const el = e.target;
       const act = el.dataset.actionInput;
       if (!act) return;
@@ -437,7 +460,23 @@ const App = (() => {
           route();
         }
       } else if (act === "cal-transducer") {
-        CalibrationEngine.saveCalibration({ transducer: el.value });
+        CalibrationEngine.saveCalibration({ transducer: el.value, calibrated: true });
+        document.querySelectorAll(`[data-action="cal-select-transducer"]`).forEach(c => {
+          const match = c.dataset.id === el.value;
+          c.classList.toggle("selected", match);
+          const r = c.querySelector('input[type="radio"]');
+          if (r) r.checked = match;
+          const badge = c.querySelector(".t-badge");
+          if (badge) {
+            badge.classList.toggle("on", match);
+            badge.textContent = match ? "Actif ✔" : "Choisir";
+          }
+        });
+        const calBadge = document.getElementById("cal-status-badge");
+        if (calBadge) {
+          calBadge.className = "pill ok";
+          calBadge.textContent = "Étalonné ✔";
+        }
       } else if (act === "cal-gain-voice") {
         CalibrationEngine.saveCalibration({ outputGain: Number(el.value) });
       } else if (act === "cal-gain-bio") {
@@ -480,7 +519,10 @@ const App = (() => {
       } else if (act === "consent-notif") {
         Store.update(s => { s.consent.notifications = el.checked; });
       }
-    });
+    }
+
+    document.addEventListener("input", handleFormInput);
+    document.addEventListener("change", handleFormInput);
 
     // Soumission de formulaires
     document.addEventListener("submit", e => {

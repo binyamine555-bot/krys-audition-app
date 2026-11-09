@@ -49,36 +49,40 @@ jobs:
 
       - name: Prepare APK for Release
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.4.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.5.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.4.apk
+          path: krys-audition-v1.0.5.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.4
-          name: "Krys Audition – Mon Parcours Auditif (v1.0.4 - Clarté Vocale & Étalonnage Parole/Bruit)"
+          tag_name: v1.0.5
+          name: "Krys Audition – Mon Parcours Auditif (v1.0.5 - Répertoire National 560+ Centres & Espaces)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.4 - Clarté Vocale Optimisée)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.5 - Réseau National Exhaustif)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### 🔊 Correctif Majeur sur la Clarté Vocale & la Parole dans le Bruit :
-            - **Réduction du volume du bruit de fond de -25 dB :** Le bruit de fond (brouhaha, circulation, vaisselle) agissait précédemment à un niveau trop fort qui couvrait la voix sur les haut-parleurs mobiles. Il est désormais calibré comme une ambiance réaliste et douce en arrière-plan.
-            - **Ducking acoustique automatique :** Lors de la prononciation du mot ou de la phrase, le bruit de fond est légèrement atténué en douceur pour détacher la parole avec une clarté optimale.
-            - **Moteur vocal Android sécurisé :** Protection anti-coupure contre le ramasse-miettes (garbage collector) de Chromium et déblocage automatique de la synthèse vocale pour que chaque mot soit prononcé distinctement sans aucun silence.
+            #### 📍 Répertoire exhaustif de plus de 560 Centres & Espaces en France :
+            - **Couverture nationale intégrale :** Plus de 560 centres et espaces Krys Audition répertoriés dans toute la France métropolitaine et d'outre-mer (Guadeloupe, Martinique, Guyane, La Réunion).
+            - **Centres Exclusifs & Espaces Audition :** 283 centres exclusifs d'audiologie avec cabines insonorisées de dernière génération et 283 espaces audition intégrés en synergie Optique & Audition.
+            - **Recherche instantanée :** Recherche fluide par code postal, ville, département ou région.
+            - **Fiche dédiée Benjamin Joseph COHEN :** Audioprothésiste référent D.E. Cnam Paris au centre Paris 11e Bastille.
+
+            #### 🔊 Moteur acoustique & Clarté Vocale HD :
+            - Étalonnage parole/bruit de fond optimisé avec ducking acoustique automatique pour un confort d'entraînement parfait.
 
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.0.4.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.4/krys-audition-v1.0.4.apk)**
+            - **[Télécharger krys-audition-v1.0.5.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.5/krys-audition-v1.0.5.apk)**
           files: |
-            krys-audition-v1.0.4.apk
+            krys-audition-v1.0.5.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

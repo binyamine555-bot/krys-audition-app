@@ -146,76 +146,144 @@ const AudioEngine = (() => {
     }
   }
 
-  /* ---------- Génération des bruits ---------- */
+  /* ---------- Génération des bruits & environnements sonores ---------- */
   function makeBuffer(type) {
     const c = ensureCtx(); if (!c) return null;
     if (buffers[type]) return buffers[type];
-    const sr = c.sampleRate, len = sr * 6;
+    const sr = c.sampleRate || 44100;
+    const dur = 8; // 8 secondes de boucle haute fidélité
+    const len = sr * dur;
     const buf = c.createBuffer(1, len, sr);
     const d = buf.getChannelData(0);
 
     if (type === "white") {
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    } else {
-      // bruit rose (filtre de Paul Kellet)
-      const pink = () => {
-        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-        return () => {
-          const w = Math.random() * 2 - 1;
-          b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759;
-          b2 = 0.96900 * b2 + w * 0.1538520; b3 = 0.86650 * b3 + w * 0.3104856;
-          b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
-          const out = b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362; b6 = w * 0.115926;
-          return out * 0.11;
-        };
-      };
-      if (type === "pink") {
-        const p = pink();
-        for (let i = 0; i < len; i++) d[i] = p();
-      } else if (type === "traffic") {
-        // Bruit de circulation : grondement grave + montées/descentes lentes
-        const p = pink();
-        let rumble = 0;
+    } else if (type === "pink") {
+      // 1. SALON & VENTILATION DOUCE : Souffle stationnaire très régulier et apaisant
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < len; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.992 * b0 + white * 0.05;
+        b1 = 0.965 * b1 + white * 0.09;
+        b2 = 0.880 * b2 + white * 0.16;
+        d[i] = (b0 + b1 + b2) * 0.45;
+      }
+    } else if (type === "traffic") {
+      // 2. BOULEVARD & CIRCULATION : Passage de véhicules en Doppler + roulement pneus + klaxon lointain
+      let urbanHiss = 0;
+      for (let i = 0; i < len; i++) {
+        const n = Math.random() * 2 - 1;
+        urbanHiss = 0.94 * urbanHiss + 0.06 * n;
+        d[i] = urbanHiss * 0.22;
+      }
+      // Deux véhicules qui s'approchent, accélèrent et s'éloignent (effet Doppler)
+      const cars = [
+        { peak: 2.4, width: 1.1, fStart: 950, fEnd: 320, vol: 0.8 },
+        { peak: 6.2, width: 1.3, fStart: 880, fEnd: 290, vol: 0.9 }
+      ];
+      cars.forEach(car => {
         for (let i = 0; i < len; i++) {
-          const mod = 0.5 + 0.5 * Math.sin((i / sr) * 0.8) + 0.3 * Math.sin((i / sr) * 2.3);
-          rumble = 0.96 * rumble + 0.04 * (Math.random() * 2 - 1);
-          d[i] = (p() * 0.4 + rumble * 1.8) * mod;
+          const t = i / sr;
+          const dt = t - car.peak;
+          const env = Math.exp(-(dt * dt) / (car.width * car.width));
+          if (env < 0.005) continue;
+          const progress = Math.min(1, Math.max(0, (dt / car.width + 1) / 2));
+          const freq = car.fStart + (car.fEnd - car.fStart) * progress;
+          // Frottement du pneu sur bitume
+          const tire = (Math.random() * 2 - 1) * Math.sin(2 * Math.PI * freq * t);
+          // Grondement mécanique moteur 4 cylindres
+          const engine = Math.sin(2 * Math.PI * 52 * t) + 0.5 * Math.sin(2 * Math.PI * 104 * t);
+          d[i] += (tire * 0.7 + engine * 0.55) * env * car.vol;
         }
-      } else if (type === "dishes") {
-        // Bruit ménager / vaisselle : fond doux + chocs métalliques et cliquetis aigus
-        const p = pink();
-        for (let i = 0; i < len; i++) d[i] = p() * 0.3;
-        const clinks = 18;
-        for (let k = 0; k < clinks; k++) {
-          const pos = Math.floor(Math.random() * (len - 8000));
-          const freq = 2200 + Math.random() * 3500;
-          for (let j = 0; j < 6000; j++) {
-            const decay = Math.exp(-j / 600);
-            d[pos + j] += Math.sin(2 * Math.PI * freq * (j / sr)) * decay * 0.8;
-          }
+      });
+      // Coup de klaxon lointain typique de la circulation parisienne (à t = 4.2s)
+      const hornStart = Math.floor(sr * 4.1), hornLen = Math.floor(sr * 0.35);
+      for (let j = 0; j < hornLen; j++) {
+        const t = j / sr;
+        const env = Math.sin((j / hornLen) * Math.PI);
+        const h = (Math.sin(2 * Math.PI * 435 * t) + Math.sin(2 * Math.PI * 545 * t)) * 0.2;
+        d[hornStart + j] += h * env;
+      }
+    } else if (type === "dishes") {
+      // 3. CUISINE & VAISSELLE : Eau qui coule dans l'évier + chocs et tintements de verres, assiettes et couverts
+      let wFilt = 0;
+      for (let i = 0; i < len; i++) {
+        const flow = 0.75 + 0.25 * Math.sin(2 * Math.PI * 0.18 * (i / sr));
+        const n = Math.random() * 2 - 1;
+        wFilt = 0.88 * wFilt + 0.12 * n; // filet d'eau fluide
+        d[i] = wFilt * 0.22 * flow;
+      }
+      // Tintements nets d'assiettes en céramique, verres en cristal et couverts métalliques
+      const clinkCount = 38;
+      for (let k = 0; k < clinkCount; k++) {
+        const tStart = Math.floor((k / clinkCount) * len + (Math.random() - 0.5) * (sr * 0.16));
+        if (tStart < 0 || tStart > len - 14000) continue;
+        const f1 = 1800 + Math.random() * 3200;
+        const f2 = f1 * (1.28 + Math.random() * 0.38);
+        const decayRate = 140 + Math.random() * 300;
+        const impactVol = 0.5 + Math.random() * 0.5;
+        for (let j = 0; j < 12000; j++) {
+          const env = Math.exp(-j / decayRate);
+          const tSec = j / sr;
+          const sig = (Math.sin(2 * Math.PI * f1 * tSec) * 0.6 + Math.sin(2 * Math.PI * f2 * tSec) * 0.4);
+          d[tStart + j] += sig * env * impactVol;
         }
-      } else {
-        // "babble" : somme de plusieurs sources roses modulées à rythme syllabique (≈ 3–6 Hz)
-        const talkers = 6;
-        for (let t = 0; t < talkers; t++) {
-          const p = pink();
-          let env = 0, target = Math.random();
-          const changeEvery = Math.floor(sr / (3 + Math.random() * 3));
-          for (let i = 0; i < len; i++) {
-            if (i % changeEvery === 0) target = Math.random() < 0.25 ? 0.05 : 0.4 + Math.random() * 0.6;
-            env += (target - env) * 0.0015;
-            d[i] += p() * env;
+      }
+    } else {
+      // 4. RESTAURANT & DÉJEUNER ANIMÉ : Polyphonie vocale (hommes, femmes) aux rythmes syllabiques articulés + verres feutrés
+      const voices = [
+        { f0: 115, f1: 650, f2: 1300, rate: 3.8 },
+        { f0: 135, f1: 520, f2: 1650, rate: 4.2 },
+        { f0: 195, f1: 750, f2: 1550, rate: 4.5 },
+        { f0: 220, f1: 580, f2: 1900, rate: 4.0 },
+        { f0: 125, f1: 700, f2: 1400, rate: 3.6 },
+        { f0: 210, f1: 620, f2: 1800, rate: 4.7 },
+        { f0: 145, f1: 800, f2: 1600, rate: 4.1 },
+        { f0: 235, f1: 650, f2: 2100, rate: 3.9 }
+      ];
+      voices.forEach(v => {
+        let phase0 = Math.random();
+        let syllEnv = 0;
+        for (let i = 0; i < len; i++) {
+          const t = i / sr;
+          const syllPhase = t * v.rate;
+          const syllGate = Math.sin(2 * Math.PI * syllPhase);
+          const isSpeaking = Math.sin(2 * Math.PI * 0.35 * t + v.f0) > -0.25;
+          const targetEnv = (isSpeaking && syllGate > 0) ? syllGate : 0;
+          syllEnv += (targetEnv - syllEnv) * 0.008;
+
+          phase0 = (phase0 + v.f0 / sr) % 1.0;
+          const glottal = (phase0 < 0.25 ? (phase0 * 4) : (1 - (phase0 - 0.25) / 0.75 * 2)) - 0.5;
+
+          const form1 = Math.sin(2 * Math.PI * v.f1 * t);
+          const form2 = Math.sin(2 * Math.PI * v.f2 * t);
+          const vocalTone = (glottal * 0.35 + form1 * 0.45 + form2 * 0.2) * syllEnv;
+          d[i] += vocalTone * 0.28;
+        }
+      });
+      // Bruit de salle et résonances de couverts feutrés
+      for (let k = 0; k < 8; k++) {
+        const tClink = Math.floor((k / 8) * len + Math.random() * (sr * 0.3));
+        if (tClink < len - 4000) {
+          for (let j = 0; j < 3500; j++) {
+            d[tClink + j] += Math.sin(2 * Math.PI * 3100 * (j / sr)) * Math.exp(-j / 200) * 0.22;
           }
         }
       }
     }
-    // normalisation RMS ≈ 0.1
+
+    // Normalisation RMS = 0.12
     let sum = 0; for (let i = 0; i < len; i++) sum += d[i] * d[i];
-    const rms = Math.sqrt(sum / len) || 1, k = 0.1 / rms;
+    const rms = Math.sqrt(sum / len) || 1, k = 0.12 / rms;
     for (let i = 0; i < len; i++) d[i] *= k;
-    // fondu de bouclage
-    const fade = Math.floor(sr * 0.05);
-    for (let i = 0; i < fade; i++) { const g = i / fade; d[i] *= g; d[len - 1 - i] *= g; }
+
+    // Fondu de bouclage propre sur 60 ms pour zéro clic à la boucle
+    const fade = Math.floor(sr * 0.06);
+    for (let i = 0; i < fade; i++) {
+      const g = i / fade;
+      d[i] *= g;
+      d[len - 1 - i] *= g;
+    }
     buffers[type] = buf;
     return buf;
   }

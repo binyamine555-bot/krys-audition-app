@@ -49,40 +49,38 @@ jobs:
 
       - name: Prepare APK for Release
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.6.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.7.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.6.apk
+          path: krys-audition-v1.0.7.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.6
-          name: "Krys Audition – Mon Parcours Auditif (v1.0.6 - Correction Simulateur d'Ambiances Sonores)"
+          tag_name: v1.0.7
+          name: "Krys Audition – Mon Parcours Auditif (v1.0.7 - Ambiances Sonores Haute Fidélité Réalistes)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.6 - Simulateur Sonore Actif)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.7 - Ambiances Réalistes HD)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### 🔊 Correctif Majeur sur le Simulateur d'Ambiances Sonores Krys :
-            - **Cycle de vie réparé :** Correction du routeur qui coupait instantanément le son lors du rafraîchissement du bouton de lecture. Le bouton passe désormais fidèlement en « Arrêter l'ambiance sonore » et les ondes audio s'animent en continu.
-            - **Niveau d'ambiance calibré pour haut-parleur mobile :** Le volume des ambiances (Restaurant, Circulation, Vaisselle, Ventilation) est désormais clairement audible et réaliste lors de l'écoute immersive solo.
-            - **Déverrouillage audio tactile :** Initialisation automatique du moteur Web Audio au premier contact de l'écran pour éviter toute mise en veille par le système Android.
-            - **Ducking acoustique intelligent :** Lors de l'écoute d'une phrase test au milieu de l'ambiance sonore, le bruit s'atténue en douceur pour faire ressortir la voix avec une netteté clinique.
+            #### 🎧 Refonte complète des 4 Ambiances Sonores Krys (Signatures Acoustiques Distinctes) :
+            1. **Restaurant & Déjeuner animé :** Polyphonie vocale humaine réaliste (voix masculines et féminines murmurées avec intonations et cadences syllabiques) + bruits de verres et de salle feutrée.
+            2. **Boulevard & Circulation urbaine :** Véhicules qui accélèrent et passent avec effet Doppler réaliste (frottement des pneus sur le bitume, montée et descente en fréquence) + grondement de moteur + léger klaxon lointain typiquement urbain.
+            3. **Cuisine & Bruits de Vaisselle :** Écoulement de l'eau du robinet dans l'évier + chocs et tintements cristallins très nets d'assiettes en céramique, verres et couverts métalliques.
+            4. **Salon & Souffle de Ventilation :** Souffle continu, doux, apaisant et régulier de climatisation / diffuseur d'air sans aucun choc ni voix.
 
-            #### 📍 Plus de 560 Centres & Espaces Krys en France :
-            - Répertoire exhaustif métropole et outre-mer (283 centres exclusifs + 283 espaces audition).
-
+            #### 📍 Répertoire exhaustif de plus de 560 Centres & Espaces en France
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.0.6.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.6/krys-audition-v1.0.6.apk)**
+            - **[Télécharger krys-audition-v1.0.7.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.7/krys-audition-v1.0.7.apk)**
           files: |
-            krys-audition-v1.0.6.apk
+            krys-audition-v1.0.7.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

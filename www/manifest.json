@@ -1,0 +1,22 @@
+{
+  "name": "Krys Audition – Mon Parcours Auditif",
+  "short_name": "Krys Audition",
+  "description": "Entraînement auditif personnalisé et suivi de votre appareillage Krys Audition",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#002D62",
+  "theme_color": "#002D62",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><circle cx='96' cy='96' r='90' fill='%23002D62'/><path d='M60 65a36 36 0 1 1 72 0c0 30-36 40-36 58a18 18 0 1 1-36 0' fill='none' stroke='%23E2001A' stroke-width='16' stroke-linecap='round'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><circle cx='256' cy='256' r='240' fill='%23002D62'/><path d='M160 170a96 96 0 1 1 192 0c0 80-96 106-96 154a48 48 0 1 1-96 0' fill='none' stroke='%23E2001A' stroke-width='42' stroke-linecap='round'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

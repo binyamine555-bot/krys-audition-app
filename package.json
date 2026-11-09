@@ -5,10 +5,7 @@
   "author": "Benjamin Joseph Cohen",
   "license": "MIT",
   "scripts": {
-    "start": "serve .",
-    "cap:add:android": "cap add android",
-    "cap:sync": "cap sync android",
-    "cap:open": "cap open android"
+    "build": "node -e \"const fs=require('fs'); fs.cpSync('index.html', 'www/index.html'); fs.cpSync('manifest.json', 'www/manifest.json'); fs.cpSync('sw.js', 'www/sw.js'); fs.cpSync('css', 'www/css', {recursive:true}); fs.cpSync('js', 'www/js', {recursive:true});\""
   },
   "dependencies": {
     "@capacitor/core": "^6.0.0",

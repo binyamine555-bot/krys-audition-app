@@ -151,6 +151,7 @@ const App = (() => {
             badgeEl.className = "pill " + (res.status === "ok" ? "ok" : "warn");
           }
         });
+      }
       if (act === "cal-select-transducer") {
         const tid = btn.dataset.id || btn.closest("[data-action='cal-select-transducer']")?.dataset.id;
         if (tid) {

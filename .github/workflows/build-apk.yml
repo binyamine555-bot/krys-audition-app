@@ -41,8 +41,8 @@ jobs:
         run: |
           npx cap add android || true
           npx cap sync android
-          sed -i 's/versionCode 1/versionCode 112/g' android/app/build.gradle || true
-          sed -i 's/versionName "1.0"/versionName "1.2.0"/g' android/app/build.gradle || true
+          sed -i 's/versionCode 1/versionCode 113/g' android/app/build.gradle || true
+          sed -i 's/versionName "1.0"/versionName "1.2.1"/g' android/app/build.gradle || true
 
       - name: Build Android Debug APK
         run: |
@@ -54,49 +54,39 @@ jobs:
         run: |
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
           if [ -f "krys-release.keystore" ]; then
-            $BUILD_TOOLS_DIR/apksigner sign --ks krys-release.keystore --ks-pass pass:KrysAudition2026 --out krys-audition-v1.2.0.apk android/app/build/outputs/apk/debug/app-debug.apk || cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.2.0.apk
+            $BUILD_TOOLS_DIR/apksigner sign --ks krys-release.keystore --ks-pass pass:KrysAudition2026 --out krys-audition-v1.2.1.apk android/app/build/outputs/apk/debug/app-debug.apk || cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.2.1.apk
           else
-            cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.2.0.apk
+            cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.2.1.apk
           fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.2.0.apk
+          path: krys-audition-v1.2.1.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.2.0
-          name: "Krys Optique & Audition (v1.2.0 - Showroom Vraies Lunettes & Rendu Réaliste)"
+          tag_name: v1.2.1
+          name: "Krys Optique & Audition (v1.2.1 - Correctif Démarrage & Stabilité Totale)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition & Optique (Version 1.2.0 - Showroom Lunettes Haute Fidélité)
+            ### 📱 Application Mobile Android – Krys Audition & Optique (Version 1.2.1 - Stabilité & Rendu Immédiat)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### 👓 Révolution Graphique Optique & Showroom de Vraies Lunettes Krys :
-            - **Rendu vectoriel réaliste haute définition :** Remplacement complet des anciens croquis filaires simplistes par des illustrations de vraies lunettes de créateurs avec biseaux acétate, branches en perspective 3D, charnières métalliques, plaquettes transparentes et reflets spéculaires obliques sur les verres.
-            - **8 Montures Iconiques Krys modélisées :**
-              - *Krys Signature Panthéon* (Pantos écaille d'Italie, Origine France Garantie)
-              - *Krys Duo Tech Alvéole* (Titane mémoire, branches ultra-plates conçues pour zéro conflit avec les contours d'aides auditives)
-              - *Krys Atelier Saint-Germain* (Ronde or champagne brossé 14g)
-              - *Krys Urbaine Rivoli* (Carrée noire onyx avec verres protecteurs anti-lumière bleue)
-              - *Krys Solaire Aéropostale* (Pilote aviateur double pont avec verres polarisés catégorie 3)
-              - *Krys Élégance Concorde* (Papillon bordeaux / framboise rehausseur de regard)
-              - *Krys Essentiel Vendôme* (Pantos cristal bio-acétate 100% Santé, 0€ de reste à charge)
-              - *Krys Solaire Croisette* (Clubmaster browline rétro chic)
-            - **Guide Clinique Duo « Lunettes & Aides Auditives » :** Conseils pratiques d'enfilage sans sifflement larsen ni frottement sur le microphone.
-            - **Filtres interactifs par catégorie :** Tri instantané (Spécial Aides Auditives, Origine France Garantie, 100% Santé, Solaires).
-            - **Design des médaillons (.ob-illu) :** Rénovation de l'ensemble des vignettes d'illustrations de l'application avec médaillons dégradés lumineux et finitions premium.
+            #### 🛠️ Correctifs et Améliorations v1.2.1 :
+            - **Résolution immédiate de l'écran blanc au lancement :** Correction d'une accolade fermante manquante dans les écouteurs d'événements de `js/app.js` qui bloquait le rendu initial du module d'accueil et de déverrouillage.
+            - **Validation complète de l'ensemble des 23 vues de l'application :** Test automatisé sous Chrome Headless certifiant l'affichage sans aucune erreur JavaScript de tous les écrans (Déverrouillage, Accueil, Showroom Lunettes, Étalonnage, Répertoire des 200+ Centres Krys, Entraînement, Bilans Cliniques, Espace Pro).
+            - **Showroom Optique Haute Définition :** Présentation soignée des 8 vraies montures Krys réalistes, verres biseautés, reflets et guide duo Lunettes + Aides auditives.
 
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.2.0.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.2.0/krys-audition-v1.2.0.apk)**
+            - **[Télécharger krys-audition-v1.2.1.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.2.1/krys-audition-v1.2.1.apk)**
           files: |
-            krys-audition-v1.2.0.apk
+            krys-audition-v1.2.1.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

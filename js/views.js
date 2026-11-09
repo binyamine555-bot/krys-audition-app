@@ -968,14 +968,71 @@ Views.calibration = {
 /* ======================= RÉPERTOIRE DES CENTRES KRYS EN FRANCE ======================= */
 let CENTERS_FILTER = { query: "", region: "" };
 Views.centers = {
-  render() {
-    const all = KrysDirectory.all();
-    const regions = Object.keys(KrysDirectory.byRegion()).sort();
+  getFiltered() {
     let filtered = KrysDirectory.search(CENTERS_FILTER.query);
     if (CENTERS_FILTER.region) {
       filtered = filtered.filter(c => c.region === CENTERS_FILTER.region);
     }
-    const currentCenterId = Store.s.profile.centerId;
+    return filtered;
+  },
+
+  renderItems(filtered, currentCenterId) {
+    if (!filtered || !filtered.length) {
+      return `
+        <div class="card center muted">
+          <p>Aucun centre trouvé pour cette recherche.</p>
+          <button class="btn btn-ghost btn-sm mt-sm" data-action="center-reset-search">Réinitialiser la recherche</button>
+        </div>
+      `;
+    }
+    return filtered.map(c => `
+      <div class="card center-item-card ${c.id === currentCenterId ? "is-my-center" : ""}">
+        <div class="center-top-row">
+          <div>
+            ${c.id === currentCenterId ? `<span class="pill ok mb-xs">Mon centre actuel</span>` : ""}
+            <h3 class="center-name">${esc(c.name)}</h3>
+            <p class="center-addr">${icon("pin")} ${esc(c.address)}, <b>${esc(c.postalCode)} ${esc(c.city)}</b> (${esc(c.department)})</p>
+          </div>
+        </div>
+
+        <p class="center-audio">${icon("user")} Audioprothésiste référent : <b>${esc(c.audiologist)}</b></p>
+        <div class="chips mt-xs">
+          ${c.services.map(s => `<span class="chip tiny">${esc(s)}</span>`).join("")}
+        </div>
+
+        <details class="hours-details mt-xs">
+          <summary>${icon("clock")} Horaires d'ouverture</summary>
+          <table class="hours-table">
+            ${c.hours.map(([d, h]) => `<tr><td>${d}</td><td>${h}</td></tr>`).join("")}
+          </table>
+        </details>
+
+        <div class="center-actions mt-sm">
+          <a href="tel:${c.phone.replace(/\s/g, "")}" class="btn btn-primary btn-sm">${icon("phone")} ${c.phone}</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.name + " " + c.address + " " + c.city)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">${icon("pin")} Itinéraire</a>
+          <button class="btn btn-secondary btn-sm" data-action="center-set-my" data-id="${c.id}">${icon("check")} Choisir ce centre</button>
+        </div>
+      </div>
+    `).join("");
+  },
+
+  updateList() {
+    const countEl = document.getElementById("centers-count-container");
+    const listEl = document.getElementById("centers-list-container");
+    if (!listEl) return;
+    const filtered = this.getFiltered();
+    const currentCenterId = Store.s?.profile?.centerId;
+    if (countEl) {
+      countEl.innerHTML = `<b>${filtered.length} centre${filtered.length > 1 ? "s" : ""} trouvé${filtered.length > 1 ? "s" : ""}</b>`;
+    }
+    listEl.innerHTML = this.renderItems(filtered, currentCenterId);
+  },
+
+  render() {
+    const all = KrysDirectory.all();
+    const regions = Object.keys(KrysDirectory.byRegion()).sort();
+    const filtered = this.getFiltered();
+    const currentCenterId = Store.s?.profile?.centerId;
 
     return `
       ${H.header("Centres Krys Audition en France", "#/home")}
@@ -983,7 +1040,7 @@ Views.centers = {
         <h3>Rechercher un centre</h3>
         <p class="muted">Consultez l'ensemble du réseau Krys Audition partout en France métropolitaine et outre-mer.</p>
         <div class="search-box mt-sm">
-          <input type="search" placeholder="Code postal (ex. 75, 69, 31...), ville ou nom..." value="${esc(CENTERS_FILTER.query)}" data-action-input="center-search" autocomplete="off">
+          <input type="search" placeholder="Code postal (ex. 75, 69, 31...), ville ou nom..." value="${esc(CENTERS_FILTER.query)}" data-action-input="center-search" autocomplete="off" autocapitalize="off" spellcheck="false">
         </div>
         <div class="filter-row mt-xs">
           <select data-action-input="center-region-filter">
@@ -994,45 +1051,12 @@ Views.centers = {
         </div>
       </section>
 
-      <div class="centers-count">
+      <div class="centers-count" id="centers-count-container">
         <b>${filtered.length} centre${filtered.length > 1 ? "s" : ""} trouvé${filtered.length > 1 ? "s" : ""}</b>
       </div>
 
-      <div class="centers-list">
-        ${filtered.map(c => `
-          <div class="card center-item-card ${c.id === currentCenterId ? "is-my-center" : ""}">
-            <div class="center-top-row">
-              <div>
-                ${c.id === currentCenterId ? `<span class="pill ok mb-xs">Mon centre actuel</span>` : ""}
-                <h3 class="center-name">${esc(c.name)}</h3>
-                <p class="center-addr">${icon("pin")} ${esc(c.address)}, <b>${esc(c.postalCode)} ${esc(c.city)}</b> (${esc(c.department)})</p>
-              </div>
-            </div>
-
-            <p class="center-audio">${icon("user")} Audioprothésiste référent : <b>${esc(c.audiologist)}</b></p>
-            <div class="chips mt-xs">
-              ${c.services.map(s => `<span class="chip tiny">${esc(s)}</span>`).join("")}
-            </div>
-
-            <details class="hours-details mt-xs">
-              <summary>${icon("clock")} Horaires d'ouverture</summary>
-              <table class="hours-table">
-                ${c.hours.map(([d, h]) => `<tr><td>${d}</td><td>${h}</td></tr>`).join("")}
-              </table>
-            </details>
-
-            <div class="center-actions mt-sm">
-              <a href="tel:${c.phone.replace(/\s/g, "")}" class="btn btn-primary btn-sm">${icon("phone")} ${c.phone}</a>
-              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.name + " " + c.address + " " + c.city)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">${icon("pin")} Itinéraire</a>
-              <button class="btn btn-secondary btn-sm" data-action="center-set-my" data-id="${c.id}">${icon("check")} Choisir ce centre</button>
-            </div>
-          </div>
-        `).join("") || `
-          <div class="card center muted">
-            <p>Aucun centre trouvé pour cette recherche.</p>
-            <button class="btn btn-ghost btn-sm mt-sm" data-action="center-reset-search">Réinitialiser la recherche</button>
-          </div>
-        `}
+      <div class="centers-list" id="centers-list-container">
+        ${this.renderItems(filtered, currentCenterId)}
       </div>
     `;
   }

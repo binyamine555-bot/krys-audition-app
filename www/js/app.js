@@ -184,7 +184,11 @@ const App = (() => {
         const cid = btn.dataset.id;
         Store.update(s => { s.profile.centerId = cid; });
         toast("Votre centre principal a été mis à jour ✔");
-        route();
+        if (Views.centers && typeof Views.centers.updateList === "function") {
+          Views.centers.updateList();
+        } else {
+          route();
+        }
       } else if (act === "center-locate") {
         if (!navigator.geolocation) {
           toast("Géolocalisation non disponible");
@@ -199,7 +203,13 @@ const App = (() => {
             btn.textContent = "Autour de moi";
             if (nearest) {
               CENTERS_FILTER.query = nearest.city;
-              route();
+              const inputEl = document.querySelector('input[data-action-input="center-search"]');
+              if (inputEl) inputEl.value = nearest.city;
+              if (Views.centers && typeof Views.centers.updateList === "function") {
+                Views.centers.updateList();
+              } else {
+                route();
+              }
               toast(`Centre le plus proche : ${nearest.name}`);
             }
           },
@@ -212,7 +222,15 @@ const App = (() => {
       } else if (act === "center-reset-search") {
         CENTERS_FILTER.query = "";
         CENTERS_FILTER.region = "";
-        route();
+        const inputEl = document.querySelector('input[data-action-input="center-search"]');
+        if (inputEl) inputEl.value = "";
+        const selectEl = document.querySelector('select[data-action-input="center-region-filter"]');
+        if (selectEl) selectEl.value = "";
+        if (Views.centers && typeof Views.centers.updateList === "function") {
+          Views.centers.updateList();
+        } else {
+          route();
+        }
       }
 
       // 5. Anamnèse Médicale Locale RGPD
@@ -406,10 +424,18 @@ const App = (() => {
 
       if (act === "center-search") {
         CENTERS_FILTER.query = el.value;
-        route();
+        if (Views.centers && typeof Views.centers.updateList === "function") {
+          Views.centers.updateList();
+        } else {
+          route();
+        }
       } else if (act === "center-region-filter") {
         CENTERS_FILTER.region = el.value;
-        route();
+        if (Views.centers && typeof Views.centers.updateList === "function") {
+          Views.centers.updateList();
+        } else {
+          route();
+        }
       } else if (act === "cal-transducer") {
         CalibrationEngine.saveCalibration({ transducer: el.value });
       } else if (act === "cal-gain-voice") {

@@ -35,13 +35,14 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install --legacy-peer-deps
+          npm run build
 
       - name: Prepare Android Project with Capacitor
         run: |
           npx cap add android || true
           npx cap sync android
-          sed -i 's/versionCode 1/versionCode 109/g' android/app/build.gradle || true
-          sed -i 's/versionName "1.0"/versionName "1.0.9"/g' android/app/build.gradle || true
+          sed -i 's/versionCode 1/versionCode 110/g' android/app/build.gradle || true
+          sed -i 's/versionName "1.0"/versionName "1.1.0"/g' android/app/build.gradle || true
 
       - name: Build Android Debug APK
         run: |
@@ -53,43 +54,45 @@ jobs:
         run: |
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
           if [ -f "krys-release.keystore" ]; then
-            $BUILD_TOOLS_DIR/apksigner sign --ks krys-release.keystore --ks-pass pass:KrysAudition2026 --out krys-audition-v1.0.9.apk android/app/build/outputs/apk/debug/app-debug.apk || cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.9.apk
+            $BUILD_TOOLS_DIR/apksigner sign --ks krys-release.keystore --ks-pass pass:KrysAudition2026 --out krys-audition-v1.1.0.apk android/app/build/outputs/apk/debug/app-debug.apk || cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.1.0.apk
           else
-            cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.9.apk
+            cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.1.0.apk
           fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.9.apk
+          path: krys-audition-v1.1.0.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.9
-          name: "Krys Audition – Mon Parcours Auditif (v1.0.9 - Voix Native Android & Calme Absolu)"
+          tag_name: v1.1.0
+          name: "Krys Audition – Mon Parcours Auditif (v1.1.0 - Saisie Clavier Fluide & Recherche En Direct)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.9 - Voix Native Opérationnelle)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.1.0 - Saisie Fluide & Recherche En Direct)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### 🗣️ Correctifs Majeurs sur la Parole & l'Entraînement :
-            - **Intégration du moteur vocal natif Android :** Ajout du plugin officiel Capacitor Text-To-Speech qui communique directement avec le moteur vocal du système Android en français.
-            - **Élimination du faux bruit de fond en mode calme :** Suppression complète du son parasite qui se déclenchait lors des essais. En mode calme (« Au calme »), aucun bruit ne retentit et la parole se détache dans un silence absolu.
-            - **Pas de coupure prématurée :** Suppression des minuteurs de bascule qui interrompaient la voix avant qu'elle ne sorte sur les haut-parleurs.
-            - **Mise à jour simplifiée sans conflit :** Signature cryptographique permanente et `versionCode 109` pour faciliter les futures mises à jour directes.
+            #### ⌨️ Correctif Majeur sur le Clavier Mobile & la Recherche de Centres :
+            - **Maintien permanent du clavier Android :** La saisie dans le champ de recherche ne ferme plus le clavier virtuel après chaque lettre. Le clavier reste désormais toujours actif et ouvert pendant toute la frappe.
+            - **Filtrage instantané en temps réel :** La liste des plus de 560 centres Krys Audition s'actualise instantanément sous le champ de saisie sans aucun rechargement de page ni saut d'écran vers le haut.
+            - **Position du curseur préservée :** La saisie est totalement fluide, réactive et agréable sur smartphone et tablette.
 
-            #### 📍 Répertoire de plus de 560 Centres & Espaces Krys en France
-            #### 🎧 Simulateur d'Ambiances Sonores Haute Fidélité (Restaurant, Circulation, Vaisselle, Salon)
+            #### 🗣️ Rappel des Performances Audio & Parole (v1.0.9) :
+            - Moteur vocal natif Android avec voix claire en français.
+            - Silence total et confort d'écoute en mode « Au calme ».
+            - 4 ambiances sonores fidèles (Restaurant, Rue, Vaisselle, Salon).
+            - Clé de signature permanente et `versionCode 110` pour une mise à jour directe sans conflit.
 
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.0.9.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.9/krys-audition-v1.0.9.apk)**
+            - **[Télécharger krys-audition-v1.1.0.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.1.0/krys-audition-v1.1.0.apk)**
           files: |
-            krys-audition-v1.0.9.apk
+            krys-audition-v1.1.0.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

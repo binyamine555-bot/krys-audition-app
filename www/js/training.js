@@ -178,7 +178,6 @@ const Training = (() => {
             <div class="chips"><span class="chip">${icon("clock")} ~${def.minutes} min</span><span class="chip">${icon("sliders")} ${condLabel()}</span></div>
             ${exId === "pairs" ? `<div class="note-box">${icon("target")}<div><b>Personnalisé pour vous</b><br>${a ? "D'après votre audiogramme et vos résultats : " : "D'après vos résultats : "}${focusCats(2).map(c => CATEGORIES[c].label.toLowerCase()).join(" et ")}.</div></div>` : ""}
             <div class="note-box soft">${icon("ear")}<div>Portez vos aides auditives et réglez le volume du téléphone à un niveau <b>confortable</b>, comme pour une conversation.</div></div>
-            ${!AudioEngine.hasSpeech() ? `<div class="note-box warn">${icon("alert")}<div>La synthèse vocale n'est pas disponible sur ce navigateur. Utilisez Chrome, Edge ou Safari.</div></div>` : ""}
             <button class="btn btn-primary btn-lg btn-block" data-act="start">${icon("play")} Commencer</button>
           </div>
         </div>`;

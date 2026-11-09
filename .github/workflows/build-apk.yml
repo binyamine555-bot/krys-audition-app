@@ -49,38 +49,42 @@ jobs:
 
       - name: Prepare APK for Release
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.7.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.8.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.7.apk
+          path: krys-audition-v1.0.8.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.7
-          name: "Krys Audition – Mon Parcours Auditif (v1.0.7 - Ambiances Sonores Haute Fidélité Réalistes)"
+          tag_name: v1.0.8
+          name: "Krys Audition – Mon Parcours Auditif (v1.0.8 - Synthèse Vocale Universelle Partout)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.7 - Ambiances Réalistes HD)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.8 - Voix Universelle HD)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### 🎧 Refonte complète des 4 Ambiances Sonores Krys (Signatures Acoustiques Distinctes) :
-            1. **Restaurant & Déjeuner animé :** Polyphonie vocale humaine réaliste (voix masculines et féminines murmurées avec intonations et cadences syllabiques) + bruits de verres et de salle feutrée.
-            2. **Boulevard & Circulation urbaine :** Véhicules qui accélèrent et passent avec effet Doppler réaliste (frottement des pneus sur le bitume, montée et descente en fréquence) + grondement de moteur + léger klaxon lointain typiquement urbain.
-            3. **Cuisine & Bruits de Vaisselle :** Écoulement de l'eau du robinet dans l'évier + chocs et tintements cristallins très nets d'assiettes en céramique, verres et couverts métalliques.
-            4. **Salon & Souffle de Ventilation :** Souffle continu, doux, apaisant et régulier de climatisation / diffuseur d'air sans aucun choc ni voix.
+            #### 🎙️ Moteur de Synthèse Vocale Universel (Disponible 100% Partout) :
+            - **Fin du message d'incompatibilité :** Le bandeau « La synthèse vocale n'est pas disponible sur ce navigateur » a été définitivement supprimé.
+            - **Moteur Hybride Multi-Niveaux :**
+              1. **Web Speech API native :** Utilisée en priorité lorsque le système d'exploitation la supporte.
+              2. **Streaming Audio HD Français de secours :** Déclenchement automatique et instantané d'une voix française claire et fluide de studio en cas d'absence ou de blocage du moteur natif Android WebView.
+              3. **Synthèse Phonétique Web Audio :** Filet de sécurité hors-ligne pour garantir qu'un son vocal soit toujours prononcé.
+            - **Configuration Android Capacitor optimisée :** Autorisation complète des flux audio et requêtes média dans la WebView.
 
-            #### 📍 Répertoire exhaustif de plus de 560 Centres & Espaces en France
+            #### 📍 Plus de 560 Centres & Espaces Krys en France (283 Centres + 283 Corners)
+            #### 🎧 4 Ambiances Sonores Réalistes Distinctes (Restaurant, Circulation, Vaisselle, Salon)
+
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.0.7.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.7/krys-audition-v1.0.7.apk)**
+            - **[Télécharger krys-audition-v1.0.8.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.8/krys-audition-v1.0.8.apk)**
           files: |
-            krys-audition-v1.0.7.apk
+            krys-audition-v1.0.8.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

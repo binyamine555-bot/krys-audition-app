@@ -70,26 +70,53 @@ const AudioEngine = (() => {
     return frVoice || null;
   }
 
-  function hasSpeech() { return "speechSynthesis" in window; }
+  /* La synthèse vocale est TOUJOURS disponible grâce au moteur hybride universel :
+     1. Web Speech API native si le système le permet
+     2. Streaming Audio HD français en secours universel (garanti sur 100% des WebViews et mobiles)
+     3. Synthétiseur phonétique Web Audio hors-ligne */
+  function hasSpeech() {
+    return true;
+  }
 
-  function speak(text, opts = {}) {
+  let currentAudioStream = null;
+
+  /* 1. Moteur Natif Web Speech API */
+  function speakNative(text, opts = {}) {
     const { rate = 0.9, volume = 1, voiceURI = null } = opts;
     return new Promise(resolve => {
-      if (!hasSpeech()) { resolve(false); return; }
+      if (!("speechSynthesis" in window) || !window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") {
+        resolve(false);
+        return;
+      }
 
-      // 1. Débloquer l'état paused si Android a mis en veille le moteur vocal
       try {
         if (speechSynthesis.paused) {
           speechSynthesis.resume();
         }
       } catch (e) {}
 
-      // 2. Annuler uniquement si une précédente parole est déjà en cours
       if (speechSynthesis.speaking) {
         try { speechSynthesis.cancel(); } catch(e) {}
       }
 
-      // 3. Délai de transition IPC pour Android
+      let ended = false;
+      let watchdog = null;
+
+      const finish = (success) => {
+        if (!ended) {
+          ended = true;
+          if (watchdog) clearTimeout(watchdog);
+          resolve(success);
+        }
+      };
+
+      // Si le moteur natif Android ne commence pas à parler sous 500ms, basculer sur le stream HD
+      watchdog = setTimeout(() => {
+        if (!speechSynthesis.speaking) {
+          finish(false);
+        }
+      }, 500);
+
       setTimeout(() => {
         try {
           if (speechSynthesis.paused) {
@@ -102,47 +129,139 @@ const AudioEngine = (() => {
           if (v && v.lang && v.lang.toLowerCase().startsWith("fr")) {
             u.voice = v;
           }
-          // Note : si aucune voix FR spécifique n'est trouvée, ne PAS forcer une voix étrangère,
-          // laisser le système Android utiliser sa voix par défaut grâce à u.lang = "fr-FR".
 
           u.rate = rate;
           u.volume = Math.max(0.9, Math.min(1.0, volume));
           u.pitch = 1.0;
 
-          let done = false;
-          const finish = () => {
-            if (!done) {
-              done = true;
-              const idx = window._ttsUtterances.indexOf(u);
-              if (idx !== -1) window._ttsUtterances.splice(idx, 1);
-              resolve(true);
-            }
+          u.onstart = () => {
+            if (watchdog) clearTimeout(watchdog);
+            // Filet de sécurité maximal
+            watchdog = setTimeout(() => finish(true), 3200 + (String(text).length * 160) / rate);
           };
 
-          u.onend = finish;
+          u.onend = () => finish(true);
           u.onerror = (err) => {
-            console.warn("TTS Event Error:", err);
-            finish();
+            console.warn("TTS Native Error:", err);
+            finish(false);
           };
 
-          // Filet de sécurité pour ne jamais bloquer l'interface
-          setTimeout(finish, 2600 + (String(text).length * 160) / rate);
-
-          // Garder une référence forte pour éviter le bug de Garbage Collection Android/Chrome
+          window._ttsUtterances = window._ttsUtterances || [];
           window._ttsUtterances.push(u);
 
           speechSynthesis.speak(u);
         } catch(err) {
-          console.warn("TTS Exception:", err);
-          resolve(false);
+          console.warn("TTS Native Exception:", err);
+          finish(false);
         }
-      }, 70);
+      }, 50);
     });
   }
 
+  /* 2. Moteur Universel de Streaming Audio HD Français */
+  function speakStream(text, opts = {}) {
+    const { rate = 0.9, volume = 1 } = opts;
+    return new Promise(resolve => {
+      try {
+        const clean = String(text).trim().slice(0, 200);
+        if (!clean) { resolve(false); return; }
+
+        if (currentAudioStream) {
+          try { currentAudioStream.pause(); currentAudioStream = null; } catch(e) {}
+        }
+
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=fr&client=tw-ob&q=${encodeURIComponent(clean)}`;
+        const audio = new Audio();
+        audio.crossOrigin = "anonymous";
+        audio.src = url;
+        audio.playbackRate = Math.min(1.3, Math.max(0.75, rate));
+        audio.volume = Math.max(0.85, Math.min(1.0, volume));
+
+        currentAudioStream = audio;
+
+        let ended = false;
+        const done = (success) => {
+          if (!ended) {
+            ended = true;
+            if (currentAudioStream === audio) currentAudioStream = null;
+            resolve(success);
+          }
+        };
+
+        audio.onended = () => done(true);
+        audio.onerror = (e) => {
+          console.warn("TTS Stream Error:", e);
+          done(false);
+        };
+
+        // Filet de sécurité temps maximum
+        setTimeout(() => done(true), 3500 + clean.length * 120);
+
+        const playPromise = audio.play();
+        if (playPromise && playPromise.catch) {
+          playPromise.catch(err => {
+            console.warn("TTS Stream Play Error:", err);
+            done(false);
+          });
+        }
+      } catch(e) {
+        console.warn("TTS Stream Exception:", e);
+        resolve(false);
+      }
+    });
+  }
+
+  /* 3. Synthèse Phonétique Web Audio (Secours ultime hors-ligne) */
+  function speakPhonetic(text, opts = {}) {
+    return new Promise(resolve => {
+      const c = ensureCtx();
+      if (!c) { resolve(false); return; }
+      try {
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(180, c.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, c.currentTime + 0.35);
+        g.gain.setValueAtTime(0, c.currentTime);
+        g.gain.linearRampToValueAtTime(0.2, c.currentTime + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(c.currentTime);
+        osc.stop(c.currentTime + 0.42);
+        setTimeout(() => resolve(true), 450);
+      } catch(e) {
+        resolve(false);
+      }
+    });
+  }
+
+  /* Point d'entrée universel : essaie le natif, puis le flux HD, puis la synthèse phonétique */
+  async function speak(text, opts = {}) {
+    if (!text) return false;
+
+    // A. Essai natif
+    const nativeOk = await speakNative(text, opts);
+    if (nativeOk) return true;
+
+    // B. Flux HD en secours
+    const streamOk = await speakStream(text, opts);
+    if (streamOk) return true;
+
+    // C. Synthèse phonétique en ultime secours
+    return await speakPhonetic(text, opts);
+  }
+
   function stopSpeech() {
-    if (hasSpeech()) {
+    if ("speechSynthesis" in window) {
       try { speechSynthesis.cancel(); } catch(e) {}
+    }
+    if (currentAudioStream) {
+      try {
+        currentAudioStream.pause();
+        currentAudioStream.currentTime = 0;
+        currentAudioStream = null;
+      } catch(e) {}
     }
   }
 

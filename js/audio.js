@@ -70,17 +70,37 @@ const AudioEngine = (() => {
     return frVoice || null;
   }
 
-  /* La synthèse vocale est TOUJOURS disponible grâce au moteur hybride universel :
-     1. Web Speech API native si le système le permet
-     2. Streaming Audio HD français en secours universel (garanti sur 100% des WebViews et mobiles)
-     3. Synthétiseur phonétique Web Audio hors-ligne */
+  /* La synthèse vocale est TOUJOURS disponible grâce au moteur hybride multi-niveaux :
+     1. Plugin Natif Capacitor Android (TextToSpeech) dans l'application mobile
+     2. Web Speech API native dans les navigateurs compatibles
+     3. Flux Audio HD français studio en secours universel */
   function hasSpeech() {
     return true;
   }
 
   let currentAudioStream = null;
 
-  /* 1. Moteur Natif Web Speech API */
+  /* 1. Moteur Natif Capacitor (Android APK) */
+  async function speakCapacitor(text, opts = {}) {
+    const { rate = 0.9, volume = 1 } = opts;
+    if (window.Capacitor && window.Capacitor.isPluginAvailable && window.Capacitor.isPluginAvailable("TextToSpeech")) {
+      try {
+        await window.Capacitor.Plugins.TextToSpeech.speak({
+          text: String(text).trim(),
+          lang: "fr-FR",
+          rate: Math.min(1.4, Math.max(0.65, rate)),
+          pitch: 1.0,
+          volume: Math.min(1.0, Math.max(0.8, volume))
+        });
+        return true;
+      } catch (err) {
+        console.warn("Capacitor TTS error:", err);
+      }
+    }
+    return false;
+  }
+
+  /* 2. Moteur Navigateur Web Speech API */
   function speakNative(text, opts = {}) {
     const { rate = 0.9, volume = 1, voiceURI = null } = opts;
     return new Promise(resolve => {
@@ -100,22 +120,12 @@ const AudioEngine = (() => {
       }
 
       let ended = false;
-      let watchdog = null;
-
       const finish = (success) => {
         if (!ended) {
           ended = true;
-          if (watchdog) clearTimeout(watchdog);
           resolve(success);
         }
       };
-
-      // Si le moteur natif Android ne commence pas à parler sous 500ms, basculer sur le stream HD
-      watchdog = setTimeout(() => {
-        if (!speechSynthesis.speaking) {
-          finish(false);
-        }
-      }, 500);
 
       setTimeout(() => {
         try {
@@ -134,17 +144,15 @@ const AudioEngine = (() => {
           u.volume = Math.max(0.9, Math.min(1.0, volume));
           u.pitch = 1.0;
 
-          u.onstart = () => {
-            if (watchdog) clearTimeout(watchdog);
-            // Filet de sécurité maximal
-            watchdog = setTimeout(() => finish(true), 3200 + (String(text).length * 160) / rate);
-          };
-
+          u.onstart = () => {};
           u.onend = () => finish(true);
           u.onerror = (err) => {
             console.warn("TTS Native Error:", err);
             finish(false);
           };
+
+          // Filet de sécurité généreux pour ne jamais figer la progression du test
+          setTimeout(() => finish(true), 3800 + (String(text).length * 180) / rate);
 
           window._ttsUtterances = window._ttsUtterances || [];
           window._ttsUtterances.push(u);
@@ -158,7 +166,7 @@ const AudioEngine = (() => {
     });
   }
 
-  /* 2. Moteur Universel de Streaming Audio HD Français */
+  /* 3. Moteur Universel de Streaming Audio HD Français (Sans en-tête CORS bloquant) */
   function speakStream(text, opts = {}) {
     const { rate = 0.9, volume = 1 } = opts;
     return new Promise(resolve => {
@@ -171,9 +179,8 @@ const AudioEngine = (() => {
         }
 
         const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=fr&client=tw-ob&q=${encodeURIComponent(clean)}`;
-        const audio = new Audio();
-        audio.crossOrigin = "anonymous";
-        audio.src = url;
+        // Pas de crossOrigin afin d'éviter tout blocage de politique CORS par le navigateur
+        const audio = new Audio(url);
         audio.playbackRate = Math.min(1.3, Math.max(0.75, rate));
         audio.volume = Math.max(0.85, Math.min(1.0, volume));
 
@@ -194,8 +201,7 @@ const AudioEngine = (() => {
           done(false);
         };
 
-        // Filet de sécurité temps maximum
-        setTimeout(() => done(true), 3500 + clean.length * 120);
+        setTimeout(() => done(true), 4000 + clean.length * 140);
 
         const playPromise = audio.play();
         if (playPromise && playPromise.catch) {
@@ -211,48 +217,26 @@ const AudioEngine = (() => {
     });
   }
 
-  /* 3. Synthèse Phonétique Web Audio (Secours ultime hors-ligne) */
-  function speakPhonetic(text, opts = {}) {
-    return new Promise(resolve => {
-      const c = ensureCtx();
-      if (!c) { resolve(false); return; }
-      try {
-        const osc = c.createOscillator();
-        const g = c.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(180, c.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(140, c.currentTime + 0.35);
-        g.gain.setValueAtTime(0, c.currentTime);
-        g.gain.linearRampToValueAtTime(0.2, c.currentTime + 0.05);
-        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4);
-        osc.connect(g);
-        g.connect(master);
-        osc.start(c.currentTime);
-        osc.stop(c.currentTime + 0.42);
-        setTimeout(() => resolve(true), 450);
-      } catch(e) {
-        resolve(false);
-      }
-    });
-  }
-
-  /* Point d'entrée universel : essaie le natif, puis le flux HD, puis la synthèse phonétique */
+  /* Point d'entrée universel : essaie Capacitor, puis Web Speech API, puis flux HD */
   async function speak(text, opts = {}) {
     if (!text) return false;
 
-    // A. Essai natif
+    // A. Plugin Capacitor natif Android (prioritaire si dans l'APK)
+    const capOk = await speakCapacitor(text, opts);
+    if (capOk) return true;
+
+    // B. Web Speech API du navigateur
     const nativeOk = await speakNative(text, opts);
     if (nativeOk) return true;
 
-    // B. Flux HD en secours
-    const streamOk = await speakStream(text, opts);
-    if (streamOk) return true;
-
-    // C. Synthèse phonétique en ultime secours
-    return await speakPhonetic(text, opts);
+    // C. Flux Audio HD français en secours universel
+    return await speakStream(text, opts);
   }
 
   function stopSpeech() {
+    if (window.Capacitor && window.Capacitor.isPluginAvailable && window.Capacitor.isPluginAvailable("TextToSpeech")) {
+      try { window.Capacitor.Plugins.TextToSpeech.stop(); } catch(e) {}
+    }
     if ("speechSynthesis" in window) {
       try { speechSynthesis.cancel(); } catch(e) {}
     }

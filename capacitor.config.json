@@ -1,0 +1,15 @@
+{
+  "appId": "fr.krys.monparcoursauditif",
+  "appName": "Krys Audition",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "",
+      "releaseType": "APK"
+    }
+  }
+}

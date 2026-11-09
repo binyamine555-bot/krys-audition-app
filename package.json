@@ -1,0 +1,20 @@
+{
+  "name": "krys-audition-app",
+  "version": "1.0.0",
+  "description": "Application d'entraînement auditif personnalisé et suivi pour les patients Krys Audition",
+  "author": "Benjamin Joseph Cohen",
+  "license": "MIT",
+  "scripts": {
+    "start": "serve .",
+    "cap:add:android": "cap add android",
+    "cap:sync": "cap sync android",
+    "cap:open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}

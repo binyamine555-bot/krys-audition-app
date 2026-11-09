@@ -306,21 +306,153 @@ const PRODUCTS_AUDIO = [
   { id: "p9", cat: "Services", name: "Suivi et entretien illimités", desc: "Contrôles, réglages et nettoyages pendant toute la durée de vie des appareils (selon offre).", tag: "Service" }
 ];
 
-/* ---------- Optique : collections (DÉMO) ---------- */
+/* ---------- Optique : collections réelles Krys & Synergie Audition ---------- */
 const FRAMES = [
-  { id: "f1", shape: "round",    name: "Collection Atelier – Ronde",      color: "#8b5a2b", desc: "Acétate écaille, style rétro.", tag: "Nouveauté" },
-  { id: "f2", shape: "square",   name: "Collection Urbaine – Carrée",     color: "#1f2937", desc: "Monture noire mate, verres anti-lumière bleue.", tag: "Tendance" },
-  { id: "f3", shape: "cateye",   name: "Collection Élégance – Papillon",  color: "#9d174d", desc: "Lignes féminines, couleur framboise.", tag: "Nouveauté" },
-  { id: "f4", shape: "aviator",  name: "Collection Solaire – Aviateur",   color: "#b08d57", desc: "Métal doré, verres polarisés.", tag: "Solaire" },
-  { id: "f5", shape: "pantos",   name: "Collection Légère – Pantos",      color: "#0f766e", desc: "Titane ultra-léger, idéal pour les progressifs.", tag: "Confort" },
-  { id: "f6", shape: "rect",     name: "Collection Junior – Rectangle",   color: "#2563eb", desc: "Monture flexible et résistante pour enfants.", tag: "Enfant" }
+  {
+    id: "f1",
+    name: "Krys Signature – Panthéon",
+    shape: "pantos",
+    colorType: "tortoise",
+    lensType: "clear_antireflect",
+    collection: "Krys Signature",
+    tag: "Origine France Garantie",
+    category: "france",
+    material: "Acétate d'Italie façon écaille ambrée",
+    desc: "L'icône de l'élégance française. Finition polie à la main à Bazainville. Branches ergonomiques ultra-douces compatibles aides auditives.",
+    price: "129 € (Verres inclus)",
+    badges: ["Origine France Garantie", "Compatible Aides Auditives", "Acétate Mazzucchelli"]
+  },
+  {
+    id: "f2",
+    name: "Krys Duo Tech – Alvéole",
+    shape: "rect_titanium",
+    colorType: "titanium",
+    lensType: "blue_block",
+    collection: "Krys Duo Tech",
+    tag: "Spécial Aides Auditives",
+    category: "duo_audio",
+    material: "Titane pur japonais ultra-léger (12g)",
+    desc: "Branches plates biseautées brevetées Zéro Frottement. Glisse sans contact le long du contour d'oreille RIC sans aucun sifflement larsen.",
+    price: "159 € (Verres inclus)",
+    badges: ["Zéro Pression Oreille", "Titane Mémoire", "Anti-Lumière Bleue"]
+  },
+  {
+    id: "f3",
+    name: "Krys Atelier – Saint-Germain",
+    shape: "round",
+    colorType: "gold",
+    lensType: "clear_antireflect",
+    collection: "Krys Atelier",
+    tag: "Best-Seller",
+    category: "france",
+    material: "Acier inoxydable or champagne brossé",
+    desc: "Silhouette ronde intellectuelle intemporelle. Plaquettes de nez transparentes en silicone médical pour une tenue sans glissement.",
+    price: "139 € (Verres inclus)",
+    badges: ["Plaquettes Médicales", "Ultra-Légère 14g", "Verres Clairs HD"]
+  },
+  {
+    id: "f4",
+    name: "Krys Urbaine – Rivoli",
+    shape: "square",
+    colorType: "black",
+    lensType: "blue_block",
+    collection: "Krys Urbaine",
+    tag: "Tendance 2026",
+    category: "tendance",
+    material: "Acétate noir onyx haute densité",
+    desc: "Lignes affirmées et biseaux architecturaux. Équipée en série de verres protecteurs anti-lumière bleue pour écrans et télévision.",
+    price: "119 € (Verres inclus)",
+    badges: ["Filtre Écrans & TV", "Acétate Noir Onyx", "Charnières Renforcées"]
+  },
+  {
+    id: "f5",
+    name: "Krys Solaire – Aéropostale",
+    shape: "aviator",
+    colorType: "aviator_gold",
+    lensType: "polarized_amber",
+    collection: "Krys Solaire",
+    tag: "Solaire Polarisée",
+    category: "solaire",
+    material: "Métal doré double-pont & manchons écaille",
+    desc: "Légendaire forme pilote aviateur. Verres polarisés catégorie 3 supprimant 99% des reflets parasites sur route et sur l'eau.",
+    price: "149 € (Verres solaires)",
+    badges: ["100% UV400", "Polarisée Catégorie 3", "Double Pont Pilote"]
+  },
+  {
+    id: "f6",
+    name: "Krys Élégance – Concorde",
+    shape: "cateye",
+    colorType: "bordeaux",
+    lensType: "clear_antireflect",
+    collection: "Krys Élégance",
+    tag: "Coup de Cœur",
+    category: "tendance",
+    material: "Acétate translucide bordeaux & reflets framboise",
+    desc: "Forme papillon gracieuse qui rehausse naturellement le regard. Équilibre parfait et branches souples idéales en double port audio-visuel.",
+    price: "139 € (Verres inclus)",
+    badges: ["Effet Rehausseur", "Nuance Framboise", "Branches Affinées"]
+  },
+  {
+    id: "f7",
+    name: "Krys Essentiel – Vendôme",
+    shape: "crystal",
+    colorType: "crystal",
+    lensType: "clear_antireflect",
+    collection: "Krys 100% Santé",
+    tag: "100% Santé (0€)",
+    category: "sante100",
+    material: "Bio-acétate cristal éco-responsable",
+    desc: "Offre 100% Santé Panier A Krys : monture esthétique et verres correcteurs traités anti-rayures et anti-reflets sans aucun reste à charge.",
+    price: "0 € de reste à charge",
+    badges: ["Zéro Reste à Charge", "Bio-Acétate Éco", "Anti-Reflets Inclus"]
+  },
+  {
+    id: "f8",
+    name: "Krys Solaire – Croisette",
+    shape: "browline",
+    colorType: "tortoise",
+    lensType: "polarized_smoke",
+    collection: "Krys Solaire",
+    tag: "Solaire Rétro",
+    category: "solaire",
+    material: "Face combinée écaille havane & métal or",
+    desc: "L'allure vintage iconique des années 60. Verres teintés minéraux bruns contrastants, confort suprême en plein soleil.",
+    price: "159 € (Verres solaires)",
+    badges: ["Protection Catégorie 3", "Combiné Rétro Chic", "Verres Polarisés"]
+  }
 ];
 
 const OPTIC_SERVICES = [
-  { name: "Verres progressifs", desc: "Voir net de près comme de loin, avec un seul équipement." },
-  { name: "Lentilles de contact", desc: "Adaptation et suivi en magasin." },
-  { name: "Examen de vue", desc: "Contrôle de la vue en magasin par un opticien (selon réglementation)." },
-  { name: "Offre 100 % Santé Optique", desc: "Une sélection de montures et verres sans reste à charge." }
+  {
+    name: "Examen de Vue & Réfraction Certifiée",
+    desc: "Contrôle visuel approfondi en cabine d'optométrie par nos opticiens diplômés (selon prescription médicale en cours de validité).",
+    icon: "eye",
+    tag: "En Magasin"
+  },
+  {
+    name: "Verres Progressifs Haute Précision Krys",
+    desc: "Champs de vision panoramiques et transition fluide de près comme de loin, individualisés selon votre morphologie faciale.",
+    icon: "glasses",
+    tag: "Fabrication Française"
+  },
+  {
+    name: "Lentilles de Contact & Contactologie",
+    desc: "Apprentissage de la pose, adaptation personnalisée (souples, rigides ou toriques) et suivi régulier de la santé cornéenne.",
+    icon: "target",
+    tag: "Adaptation Offerte"
+  },
+  {
+    name: "Offre 100% Santé Optique (Zéro Reste à Charge)",
+    desc: "Sélection rigoureuse de montures élégantes et verres anti-reflets / anti-rayures intégralement pris en charge par l'Assurance Maladie et votre mutuelle.",
+    icon: "shield",
+    tag: "Prise en charge 100%"
+  },
+  {
+    name: "Protocole Spécial Duo Lunettes & Aides Auditives",
+    desc: "Ajustement sur mesure des branches en magasin par nos équipes mixtes Optique & Audition pour éliminer tout conflit avec vos appareils.",
+    icon: "ear",
+    tag: "Exclusivité Krys"
+  }
 ];
 
 /* ---------- Audiogrammes types (démo / saisie rapide) ---------- */

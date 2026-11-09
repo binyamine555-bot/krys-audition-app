@@ -1542,6 +1542,304 @@ body.wide-mode .app-main {
   background: #f0f7ff;
 }
 
+/* ==================== MÉDAILLON ILLUSTRATION (.ob-illu) ==================== */
+.ob-illu {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e0f2fe 0%, #bae6fd 60%, #7dd3fc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+  color: var(--krys-navy);
+  box-shadow: 0 6px 18px rgba(10, 44, 91, 0.14);
+  border: 3px solid #ffffff;
+  transition: transform 0.3s ease;
+}
+
+.ob-illu:hover {
+  transform: scale(1.05);
+}
+
+.ob-illu svg {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 2px 4px rgba(10, 44, 91, 0.2));
+}
+
+.ob-illu.small {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 12px;
+}
+
+.ob-illu.small svg {
+  width: 28px;
+  height: 28px;
+}
+
+.ob-illu.warn {
+  background: radial-gradient(circle at 35% 30%, #fef3c7 0%, #fde68a 60%, #f59e0b 100%);
+  color: #78350f;
+}
+
+/* ==================== SHOWROOM OPTIQUE KRYS ==================== */
+.promo.optic {
+  background: linear-gradient(135deg, #0a2c5b 0%, #1e3a8a 50%, #0369a1 100%);
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(10, 44, 91, 0.2);
+}
+
+.promo.optic h2 {
+  color: #ffffff;
+}
+
+.promo.optic p {
+  color: #e0f2fe;
+}
+
+.badge-krys-optic {
+  margin-bottom: 8px;
+}
+
+.pill-red {
+  display: inline-block;
+  background: #e2001a;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* Guide Duo Lunettes & Audition */
+.duo-advice-card {
+  border-left: 4px solid var(--krys-navy);
+  background: #f8fafc;
+}
+
+.duo-advice-h {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.duo-ico-pair {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #e0f2fe;
+  color: var(--krys-navy);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 1.1rem;
+}
+
+.duo-ico-pair svg {
+  width: 24px;
+  height: 24px;
+}
+
+.duo-ico-pair .plus-sign {
+  font-weight: 800;
+  color: #e2001a;
+  margin: 0 2px;
+}
+
+.duo-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.duo-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.83rem;
+  line-height: 1.35;
+}
+
+.duo-step .step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--krys-navy);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Filtres Showroom */
+.optic-filter-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+
+.optic-filter-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.optic-pill {
+  white-space: nowrap;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.optic-pill.active {
+  background: var(--krys-navy);
+  color: #ffffff;
+  border-color: var(--krys-navy);
+  box-shadow: 0 2px 8px rgba(10, 44, 91, 0.2);
+}
+
+/* Grille de Montures Réalistes */
+.frame-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+@media (min-width: 540px) {
+  .frame-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.frame-card {
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(10, 44, 91, 0.06);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.frame-card:hover {
+  border-color: var(--krys-navy);
+  box-shadow: 0 8px 24px rgba(10, 44, 91, 0.14);
+  transform: translateY(-2px);
+}
+
+.frame-pedestal {
+  background: radial-gradient(circle at 50% 40%, #ffffff 0%, #f8fafc 55%, #e2e8f0 100%);
+  padding: 20px 14px 14px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 135px;
+  position: relative;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.frame-pedestal .realistic-glasses-svg {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.16));
+  transition: transform 0.3s ease;
+}
+
+.frame-card:hover .realistic-glasses-svg {
+  transform: scale(1.03);
+}
+
+.frame-pedestal .fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.frame-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.frame-top-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.frame-name {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--krys-navy);
+  margin-bottom: 4px;
+}
+
+.frame-material {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.frame-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-bottom: 10px;
+  flex: 1;
+}
+
+.frame-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.frame-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.frame-price {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--krys-navy);
+}
+
+.frame-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+}
+
 /* Impression Passeport Médical */
 @media print {
   body {

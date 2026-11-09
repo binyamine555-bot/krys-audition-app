@@ -770,34 +770,323 @@ Views.journal = {
 
 /* =============================== DÉCOUVRIR ================================ */
 let DISC_TAB = "audition";
-function frameSvg(shape, color) {
-  const lens = {
-    round: `<circle cx="32" cy="30" r="17"/><circle cx="88" cy="30" r="17"/>`,
-    square: `<rect x="14" y="14" width="36" height="32" rx="4"/><rect x="70" y="14" width="36" height="32" rx="4"/>`,
-    rect: `<rect x="12" y="18" width="40" height="24" rx="6"/><rect x="68" y="18" width="40" height="24" rx="6"/>`,
-    cateye: `<path d="M12 18 Q32 10 54 16 Q52 44 32 44 Q14 44 12 18Z"/><path d="M108 18 Q88 10 66 16 Q68 44 88 44 Q106 44 108 18Z"/>`,
-    aviator: `<path d="M14 16 H52 Q54 40 34 46 Q14 44 14 16Z"/><path d="M106 16 H68 Q66 40 86 46 Q106 44 106 16Z"/>`,
-    pantos: `<path d="M14 20 Q14 12 32 12 Q52 12 52 24 Q50 46 32 46 Q14 46 14 20Z"/><path d="M106 20 Q106 12 88 12 Q68 12 68 24 Q70 46 88 46 Q106 46 106 20Z"/>`
-  }[shape];
-  return `<svg viewBox="0 0 120 60" class="frame-svg"><g fill="rgba(180,200,220,.18)" stroke="${color}" stroke-width="4">${lens}</g><path d="M50 24 Q60 18 70 24" fill="none" stroke="${color}" stroke-width="3.5"/><path d="M12 20 L2 16 M108 20 L118 16" stroke="${color}" stroke-width="3.5"/></svg>`;
+let OPTIC_FILTER = "all";
+
+function renderRealisticGlasses(f) {
+  const uid = f.id;
+  const isSolar = f.lensType === "polarized_amber" || f.lensType === "polarized_smoke";
+  const isBlue = f.lensType === "blue_block";
+  const lensFill = isSolar ? `url(#lens_solar_${uid})` : (isBlue ? `url(#lens_blue_${uid})` : `url(#lens_clear_${uid})`);
+
+  let rimGrad = `url(#grad_${f.colorType || "tortoise"}_${uid})`;
+  if (f.colorType === "crystal") rimGrad = `url(#grad_crystal_${uid})`;
+
+  let rimsSvg = "";
+  let bridgeSvg = "";
+  let padsSvg = `
+    <!-- Plaquettes de nez transparentes silicone -->
+    <ellipse cx="106" cy="54" rx="2.5" ry="4.5" fill="rgba(255,255,255,0.75)" stroke="#cbd5e1" stroke-width="0.8"/>
+    <ellipse cx="134" cy="54" rx="2.5" ry="4.5" fill="rgba(255,255,255,0.75)" stroke="#cbd5e1" stroke-width="0.8"/>
+    <path d="M 104 50 L 100 48 M 136 50 L 140 48" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+  `;
+
+  if (f.shape === "pantos") {
+    rimsSvg = `
+      <path d="M 40 38 C 45 27 86 24 98 33 C 105 39 104 65 92 76 C 77 86 52 84 41 74 C 35 64 34 44 40 38 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="4.8" stroke-linejoin="round"/>
+      <path d="M 142 33 C 154 24 195 27 200 38 C 206 44 205 64 199 74 C 188 84 163 86 148 76 C 136 65 135 39 142 33 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="4.8" stroke-linejoin="round"/>
+    `;
+    bridgeSvg = `
+      <path d="M 98 42 C 104 35 114 33 120 33 C 126 33 136 35 142 42 C 137 46 135 52 136 56 C 128 50 112 50 104 56 C 105 52 103 46 98 42 Z" fill="${rimGrad}"/>
+    `;
+    padsSvg = "";
+  } else if (f.shape === "round") {
+    rimsSvg = `
+      <circle cx="70" cy="53" r="26.5" fill="${lensFill}" stroke="${rimGrad}" stroke-width="2.6"/>
+      <circle cx="170" cy="53" r="26.5" fill="${lensFill}" stroke="${rimGrad}" stroke-width="2.6"/>
+    `;
+    bridgeSvg = `
+      <path d="M 96.5 50 Q 120 38 143.5 50" fill="none" stroke="${rimGrad}" stroke-width="2.6" stroke-linecap="round"/>
+    `;
+  } else if (f.shape === "square") {
+    rimsSvg = `
+      <rect x="38" y="31" width="62" height="47" rx="8" fill="${lensFill}" stroke="${rimGrad}" stroke-width="5.5" stroke-linejoin="round"/>
+      <rect x="140" y="31" width="62" height="47" rx="8" fill="${lensFill}" stroke="${rimGrad}" stroke-width="5.5" stroke-linejoin="round"/>
+    `;
+    bridgeSvg = `
+      <path d="M 100 42 Q 120 37 140 42" fill="none" stroke="${rimGrad}" stroke-width="5.5" stroke-linecap="round"/>
+    `;
+    padsSvg = "";
+  } else if (f.shape === "aviator") {
+    rimsSvg = `
+      <path d="M 40 33 H 96 C 100 33 101 46 99 60 C 96 75 79 83 65 83 C 49 83 39 71 38 55 C 38 41 38 33 40 33 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M 200 33 H 144 C 140 33 139 46 141 60 C 144 75 161 83 175 83 C 191 83 201 71 202 55 C 202 41 202 33 200 33 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="2.4" stroke-linejoin="round"/>
+    `;
+    bridgeSvg = `
+      <line x1="94" y1="33" x2="146" y2="33" stroke="${rimGrad}" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M 97 45 Q 120 37 143 45" fill="none" stroke="${rimGrad}" stroke-width="2.4" stroke-linecap="round"/>
+    `;
+  } else if (f.shape === "cateye") {
+    rimsSvg = `
+      <path d="M 33 27 C 50 27 88 33 98 41 C 102 51 98 70 86 78 C 70 86 48 83 40 69 C 33 57 29 35 33 27 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="4.8" stroke-linejoin="round"/>
+      <path d="M 207 27 C 190 27 152 33 142 41 C 138 51 142 70 154 78 C 170 86 192 83 200 69 C 207 57 211 35 207 27 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="4.8" stroke-linejoin="round"/>
+    `;
+    bridgeSvg = `
+      <path d="M 98 43 Q 120 37 142 43" fill="none" stroke="${rimGrad}" stroke-width="4.8" stroke-linecap="round"/>
+    `;
+    padsSvg = "";
+  } else if (f.shape === "rect_titanium") {
+    rimsSvg = `
+      <rect x="36" y="37" width="66" height="37" rx="5" fill="${lensFill}" stroke="${rimGrad}" stroke-width="2.6" stroke-linejoin="round"/>
+      <rect x="138" y="37" width="66" height="37" rx="5" fill="${lensFill}" stroke="${rimGrad}" stroke-width="2.6" stroke-linejoin="round"/>
+    `;
+    bridgeSvg = `
+      <path d="M 102 46 Q 120 40 138 46" fill="none" stroke="${rimGrad}" stroke-width="2.8" stroke-linecap="round"/>
+    `;
+  } else if (f.shape === "browline") {
+    rimsSvg = `
+      <path d="M 36 33 C 54 27 88 31 100 41 C 94 43 86 43 74 43 C 56 43 42 37 36 33 Z" fill="${rimGrad}"/>
+      <path d="M 204 33 C 186 27 152 31 140 41 C 146 43 154 43 166 43 C 184 43 198 37 204 33 Z" fill="${rimGrad}"/>
+      <path d="M 38 35 C 36 57 44 75 68 75 C 92 75 98 55 100 39" fill="${lensFill}" stroke="url(#grad_gold_${uid})" stroke-width="2.2"/>
+      <path d="M 202 35 C 204 57 196 75 172 75 C 148 75 142 55 140 39" fill="${lensFill}" stroke="url(#grad_gold_${uid})" stroke-width="2.2"/>
+    `;
+    bridgeSvg = `
+      <path d="M 98 43 Q 120 37 142 43" fill="none" stroke="url(#grad_gold_${uid})" stroke-width="2.6" stroke-linecap="round"/>
+    `;
+  } else {
+    rimsSvg = `
+      <path d="M 40 38 C 45 27 86 24 98 33 C 105 39 104 65 92 76 C 77 86 52 84 41 74 C 35 64 34 44 40 38 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M 142 33 C 154 24 195 27 200 38 C 206 44 205 64 199 74 C 188 84 163 86 148 76 C 136 65 135 39 142 33 Z" fill="${lensFill}" stroke="${rimGrad}" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M 43 40 C 47 31 83 29 95 36 M 145 36 C 157 29 193 31 197 40" fill="none" stroke="#94a3b8" stroke-width="1.2" opacity="0.6"/>
+    `;
+    bridgeSvg = `
+      <path d="M 98 42 C 104 35 114 33 120 33 C 126 33 136 35 142 42 C 137 46 135 52 136 56 C 128 50 112 50 104 56 C 105 52 103 46 98 42 Z" fill="${rimGrad}"/>
+    `;
+    padsSvg = "";
+  }
+
+  const reflections = `
+    <!-- Reflets spéculaires obliques sur les verres -->
+    <line x1="56" y1="62" x2="78" y2="40" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" opacity="0.55"/>
+    <line x1="64" y1="70" x2="84" y2="50" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity="0.32"/>
+    <line x1="156" y1="62" x2="178" y2="40" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" opacity="0.55"/>
+    <line x1="164" y1="70" x2="184" y2="50" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity="0.32"/>
+  `;
+
+  const temples = `
+    <!-- Branches réalistes en perspective -->
+    <path d="M 37 41 C 26 37 16 30 7 26 C 5 25 3 23 2 20" fill="none" stroke="${rimGrad}" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M 203 41 C 214 37 224 30 233 26 C 235 25 237 23 238 20" fill="none" stroke="${rimGrad}" stroke-width="3.2" stroke-linecap="round"/>
+    <circle cx="36.5" cy="41" r="1.5" fill="#f8fafc" stroke="#475569" stroke-width="0.6"/>
+    <circle cx="203.5" cy="41" r="1.5" fill="#f8fafc" stroke="#475569" stroke-width="0.6"/>
+  `;
+
+  return `
+    <svg viewBox="0 0 240 100" class="realistic-glasses-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad_tortoise_${uid}" x1="0%" y1="0%" x2="100%" y2="80%">
+          <stop offset="0%" stop-color="#3d1b06"/>
+          <stop offset="25%" stop-color="#8b4a1b"/>
+          <stop offset="50%" stop-color="#d9822b"/>
+          <stop offset="75%" stop-color="#5a290c"/>
+          <stop offset="100%" stop-color="#241004"/>
+        </linearGradient>
+        <linearGradient id="grad_gold_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#b88d22"/>
+          <stop offset="35%" stop-color="#fef08a"/>
+          <stop offset="65%" stop-color="#d97706"/>
+          <stop offset="100%" stop-color="#92400e"/>
+        </linearGradient>
+        <linearGradient id="grad_aviator_gold_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ca8a04"/>
+          <stop offset="40%" stop-color="#fef9c3"/>
+          <stop offset="70%" stop-color="#eab308"/>
+          <stop offset="100%" stop-color="#a16207"/>
+        </linearGradient>
+        <linearGradient id="grad_black_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#334155"/>
+          <stop offset="30%" stop-color="#0f172a"/>
+          <stop offset="100%" stop-color="#020617"/>
+        </linearGradient>
+        <linearGradient id="grad_titanium_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#64748b"/>
+          <stop offset="40%" stop-color="#e2e8f0"/>
+          <stop offset="70%" stop-color="#94a3b8"/>
+          <stop offset="100%" stop-color="#475569"/>
+        </linearGradient>
+        <linearGradient id="grad_bordeaux_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4c0519"/>
+          <stop offset="30%" stop-color="#9f1239"/>
+          <stop offset="70%" stop-color="#e11d48"/>
+          <stop offset="100%" stop-color="#881337"/>
+        </linearGradient>
+        <linearGradient id="grad_crystal_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="rgba(241, 245, 249, 0.9)"/>
+          <stop offset="50%" stop-color="rgba(203, 213, 225, 0.6)"/>
+          <stop offset="100%" stop-color="rgba(248, 250, 252, 0.95)"/>
+        </linearGradient>
+        <linearGradient id="lens_clear_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="rgba(224, 242, 254, 0.38)"/>
+          <stop offset="100%" stop-color="rgba(186, 230, 253, 0.18)"/>
+        </linearGradient>
+        <linearGradient id="lens_solar_${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="rgba(28, 25, 23, 0.92)"/>
+          <stop offset="60%" stop-color="rgba(68, 64, 60, 0.8)"/>
+          <stop offset="100%" stop-color="rgba(120, 113, 108, 0.48)"/>
+        </linearGradient>
+        <linearGradient id="lens_blue_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="rgba(199, 210, 254, 0.42)"/>
+          <stop offset="100%" stop-color="rgba(224, 231, 255, 0.22)"/>
+        </linearGradient>
+      </defs>
+      <g>
+        ${temples}
+        ${rimsSvg}
+        ${bridgeSvg}
+        ${padsSvg}
+        ${reflections}
+      </g>
+    </svg>
+  `;
 }
+
 Views.discover = {
   tab: "discover",
   render() {
     const tab = DISC_TAB;
     const cats = [...new Set(PRODUCTS_AUDIO.map(p => p.cat))];
+    const visibleFrames = OPTIC_FILTER === "all" ? FRAMES : FRAMES.filter(f => f.category === OPTIC_FILTER || (OPTIC_FILTER === "duo_audio" && f.badges?.some(b => b.includes("Aides"))));
+
     return `${H.header("Découvrir")}
-      <div class="seg-tabs"><button class="${tab === "audition" ? "on" : ""}" data-action="disc-tab" data-tab="audition">${icon("ear")} Audition</button><button class="${tab === "optique" ? "on" : ""}" data-action="disc-tab" data-tab="optique">${icon("glasses")} Optique</button></div>
+      <div class="seg-tabs">
+        <button class="${tab === "audition" ? "on" : ""}" data-action="disc-tab" data-tab="audition">${icon("ear")} Audition</button>
+        <button class="${tab === "optique" ? "on" : ""}" data-action="disc-tab" data-tab="optique">${icon("glasses")} Optique</button>
+      </div>
+
       ${tab === "audition" ? `
-        <section class="card promo"><p class="eyebrow">Nouveauté</p><h2>Aides auditives connectées</h2><p>Téléphone, TV, musique : le son directement dans vos oreilles. Demandez une démonstration dans votre centre.</p><a class="btn btn-light" href="#/book/reglage">Demander une démo</a></section>
-        ${cats.map(c => `<h3 class="sec">${c}</h3><div class="prod-grid">${PRODUCTS_AUDIO.filter(p => p.cat === c).map(p => `<div class="prod"><span class="pill">${esc(p.tag)}</span><b>${esc(p.name)}</b><p>${esc(p.desc)}</p><button class="link" data-action="interest" data-name="${esc(p.name)}">Je suis intéressé(e) ${icon("right")}</button></div>`).join("")}</div>`).join("")}`
-      : `
-        <section class="card promo optic"><p class="eyebrow">Collection 2026</p><h2>Les nouveautés montures</h2><p>Découvrez les nouvelles collections et réservez un essayage dans votre magasin Krys.</p><a class="btn btn-light" href="#/book/optique">Réserver un essayage</a></section>
-        <h3 class="sec">Montures</h3>
-        <div class="frame-grid">${FRAMES.map(f => `<div class="frame"><div class="frame-img">${frameSvg(f.shape, f.color)}</div><span class="pill">${esc(f.tag)}</span><b>${esc(f.name)}</b><p>${esc(f.desc)}</p><button class="icon-btn fav ${Store.s.favorites.includes(f.id) ? "on" : ""}" data-action="fav" data-id="${f.id}" aria-label="Favori">${icon("star")}</button></div>`).join("")}</div>
-        <h3 class="sec">Solutions</h3>
-        <div class="list">${OPTIC_SERVICES.map(o => `<div class="list-item"><div class="li-ico">${icon("glasses")}</div><div class="grow"><b>${esc(o.name)}</b><small>${esc(o.desc)}</small></div></div>`).join("")}</div>`}
-      <p class="tiny center mt">Contenus de démonstration – catalogue à connecter aux données du réseau.</p>`;
+        <section class="card promo">
+          <p class="eyebrow">Innovation Krys Audition</p>
+          <h2>Aides auditives connectées & invisibles</h2>
+          <p>Profitez du streaming direct de vos appels, télévision et musique directement dans vos appareils avec adaptation dynamique au bruit ambiant.</p>
+          <a class="btn btn-light" href="#/book/reglage">Demander une démonstration gratuite</a>
+        </section>
+        ${cats.map(c => `
+          <h3 class="sec">${c}</h3>
+          <div class="prod-grid">
+            ${PRODUCTS_AUDIO.filter(p => p.cat === c).map(p => `
+              <div class="prod">
+                <span class="pill">${esc(p.tag)}</span>
+                <b>${esc(p.name)}</b>
+                <p>${esc(p.desc)}</p>
+                <button class="link" data-action="interest" data-name="${esc(p.name)}">Je suis intéressé(e) ${icon("right")}</button>
+              </div>
+            `).join("")}
+          </div>
+        `).join("")}
+      ` : `
+        <!-- ESPACE KRYS OPTIQUE & DUO VISION-AUDITION -->
+        <section class="card promo optic">
+          <div class="badge-krys-optic"><span class="pill-red">Krys Optique & Vision</span></div>
+          <h2>Le Regard & l'Écoute en Parfaite Harmonie</h2>
+          <p>Découvrez nos collections de lunettes de créateurs dessinées en France, spécialement adaptées au port simultané d'aides auditives.</p>
+          <div class="btn-row mt-sm">
+            <button class="btn btn-light" data-action="book-frame" data-name="Bilan Visuel & Essayage">${icon("eye")} Réserver un essayage en magasin</button>
+          </div>
+        </section>
+
+        <!-- CARTE CONSEIL CLINIQUE DUO LUNETTES & APPAREILS -->
+        <section class="card duo-advice-card">
+          <div class="duo-advice-h">
+            <div class="duo-ico-pair">${icon("glasses")}<span class="plus-sign">+</span>${icon("ear")}</div>
+            <div>
+              <h3>Le Guide Duo : Lunettes & Aides Auditives</h3>
+              <p class="tiny muted">Conseils de votre audioprothésiste Benjamin Joseph Cohen (Cnam Paris)</p>
+            </div>
+          </div>
+          <div class="duo-steps mt-sm">
+            <div class="duo-step">
+              <span class="step-num">1</span>
+              <div><b>Aide auditive en premier :</b> Insérez toujours votre aide auditive sur l'oreille avant de chausser vos lunettes.</div>
+            </div>
+            <div class="duo-step">
+              <span class="step-num">2</span>
+              <div><b>Branches glissées par-dessus :</b> Faites glisser les branches de vos lunettes vers l'extérieur pour ne pas frotter les microphones.</div>
+            </div>
+            <div class="duo-step">
+              <span class="step-num">3</span>
+              <div><b>Branches biseautées Zéro Pression :</b> Nos montures identifiées « Spécial Aides Auditives » possèdent des branches plates en titane sans conflit d'espace.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FILTRES SHOWROOM OPTIQUE -->
+        <div class="card-head-row mt">
+          <h3 class="sec mb-0">Showroom Montures Krys (Collection 2026)</h3>
+          <span class="pill ok">${visibleFrames.length} modèles</span>
+        </div>
+        <div class="optic-filter-pills mt-xs mb-sm">
+          ${[
+            ["all", "Toutes les montures"],
+            ["duo_audio", "Spécial Aides Auditives"],
+            ["france", "Origine France Garantie"],
+            ["sante100", "100% Santé (0€)"],
+            ["solaire", "Solaires Polarisées"]
+          ].map(([id, label]) => `
+            <button class="optic-pill ${OPTIC_FILTER === id ? "active" : ""}" data-action="optic-filter" data-cat="${id}">${label}</button>
+          `).join("")}
+        </div>
+
+        <!-- GRILLE DE VRAIES LUNETTES RÉALISTES -->
+        <div class="frame-grid">
+          ${visibleFrames.map(f => `
+            <div class="frame-card">
+              <div class="frame-pedestal">
+                ${renderRealisticGlasses(f)}
+                <button class="icon-btn fav ${Store.s.favorites.includes(f.id) ? "on" : ""}" data-action="fav" data-id="${f.id}" aria-label="Favori">
+                  ${icon("star")}
+                </button>
+              </div>
+              <div class="frame-body">
+                <div class="frame-top-meta">
+                  <span class="pill ${f.category === "duo_audio" ? "ok" : (f.category === "sante100" ? "highlight" : "")}">${esc(f.tag)}</span>
+                  <small class="muted"><b>${esc(f.collection)}</b></small>
+                </div>
+                <h4 class="frame-name">${esc(f.name)}</h4>
+                <p class="frame-material">${icon("tool")} ${esc(f.material)}</p>
+                <p class="frame-desc">${esc(f.desc)}</p>
+                <div class="frame-chips">
+                  ${(f.badges || []).map(b => `<span class="chip tiny">${esc(b)}</span>`).join("")}
+                </div>
+                <div class="frame-price-row mt-xs">
+                  <span class="frame-price">${esc(f.price)}</span>
+                </div>
+                <div class="frame-actions mt-sm">
+                  <button class="btn btn-primary btn-sm btn-block" data-action="book-frame" data-name="${esc(f.name)}">
+                    ${icon("calendar")} Réserver un essayage
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+
+        <!-- SOLUTIONS ET SERVICES OPTIQUE EN MAGASIN -->
+        <h3 class="sec mt">Services Optique & Vision en Magasin</h3>
+        <div class="list">
+          ${OPTIC_SERVICES.map(o => `
+            <div class="list-item">
+              <div class="li-ico">${icon(o.icon || "glasses")}</div>
+              <div class="grow">
+                <div class="card-head-row">
+                  <b>${esc(o.name)}</b>
+                  <span class="pill tiny">${esc(o.tag)}</span>
+                </div>
+                <small>${esc(o.desc)}</small>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `}
+      <p class="tiny center mt muted">Collection officielle réseau Krys Optique & Audition France.</p>`;
   }
 };
 

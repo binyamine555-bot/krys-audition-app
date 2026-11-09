@@ -345,6 +345,18 @@ const App = (() => {
       } else if (act === "disc-tab") {
         DISC_TAB = btn.dataset.tab;
         route();
+      } else if (act === "optic-filter") {
+        OPTIC_FILTER = btn.dataset.cat || "all";
+        route();
+      } else if (act === "book-frame") {
+        const frameName = btn.dataset.name || "cette monture";
+        const center = KrysDirectory ? KrysDirectory.getById(Store.s.profile.centerId) : null;
+        const centerName = center ? center.name : "votre centre Krys";
+        toast(`Essayage réservé pour « ${frameName} » dans ${centerName} ! ✔`);
+      } else if (act === "go-optic") {
+        DISC_TAB = "optique";
+        location.hash = "#/discover";
+        route();
       }
 
       // 12. Intérêt produit

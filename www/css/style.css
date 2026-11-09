@@ -1065,3 +1065,470 @@ body.wide-mode .app-main {
     max-width: 1000px;
   }
 }
+
+/* =========================================================================
+   NOUVEAUX COMPOSANTS : SIMULATEUR SONORE, PASSEPORT & GAMIFICATION
+   ========================================================================= */
+
+/* Grille 8 Accès Rapides */
+.quick.eight {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .quick.eight {
+    grid-template-columns: repeat(4, 1fr);
+    font-size: 0.72rem;
+  }
+  .quick.eight .q {
+    padding: 10px 4px;
+  }
+  .quick.eight .q span {
+    font-size: 0.7rem;
+    line-height: 1.15;
+  }
+}
+
+/* Badge Hero Card Accueil */
+.badge-hero-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.badge-hero-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 45, 98, 0.08);
+}
+
+.bh-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bh-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+}
+
+/* Cartes Mises en Avant Accueil */
+.feature-card-soundscape {
+  border-left: 4px solid var(--krys-red);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.feature-card-passport {
+  border-left: 4px solid var(--krys-navy);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.sc-badge-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill-red {
+  background-color: var(--krys-red);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.synergy-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px solid #bbf7d0;
+}
+
+.synergy-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.synergy-ico {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background-color: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Simulateur Sonore d'Immersion */
+.soundscape-hero {
+  background: linear-gradient(135deg, var(--krys-navy) 0%, var(--krys-navy-light) 100%);
+  color: #fff;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.soundscape-hero h2 {
+  color: #fff;
+  font-size: 1.3rem;
+  margin-top: 4px;
+}
+
+.soundscape-hero .muted {
+  color: rgba(255, 255, 255, 0.82);
+  margin-top: 4px;
+}
+
+/* Égaliseur sonore animé */
+.sound-wave-box {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  height: 46px;
+  margin-top: 14px;
+}
+
+.wave-bar {
+  width: 6px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+  transition: height 0.2s, background-color 0.2s;
+}
+
+.sound-wave-box.active .wave-bar {
+  background: linear-gradient(to top, #60a5fa, #86efac);
+  animation: eqWave 0.8s ease-in-out infinite alternate;
+}
+
+.sound-wave-box.active .b1 { animation-delay: 0.1s; }
+.sound-wave-box.active .b2 { animation-delay: 0.3s; }
+.sound-wave-box.active .b3 { animation-delay: 0.2s; }
+.sound-wave-box.active .b4 { animation-delay: 0.5s; }
+.sound-wave-box.active .b5 { animation-delay: 0.4s; }
+.sound-wave-box.active .b6 { animation-delay: 0.15s; }
+.sound-wave-box.active .b7 { animation-delay: 0.35s; }
+.sound-wave-box.active .b8 { animation-delay: 0.25s; }
+.sound-wave-box.active .b9 { animation-delay: 0.45s; }
+.sound-wave-box.active .b10 { animation-delay: 0.2s; }
+
+@keyframes eqWave {
+  0% { height: 6px; }
+  50% { height: 38px; }
+  100% { height: 12px; }
+}
+
+/* Grille des ambiances */
+.soundscape-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .soundscape-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.soundscape-card {
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.soundscape-card:hover {
+  border-color: var(--krys-navy-light);
+  transform: translateY(-2px);
+}
+
+.soundscape-card.selected {
+  border-color: var(--krys-navy);
+  background: #f0f7ff;
+  box-shadow: 0 4px 12px rgba(0, 45, 98, 0.1);
+}
+
+.sc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.sc-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--krys-navy);
+}
+
+.soundscape-card.selected .sc-ico {
+  background: var(--krys-navy);
+  color: #fff;
+}
+
+.speech-in-soundscape {
+  background: #f8fafc;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+
+.sentence-box {
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.sentence-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--krys-navy);
+  margin-top: 4px;
+}
+
+.note-box-soft-krys {
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+}
+
+.krys-expert-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.krys-expert-head .k-ico {
+  color: var(--krys-navy);
+}
+
+/* Badges d'assiduité */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.badge-item {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #ffffff;
+  position: relative;
+}
+
+.badge-item.unlocked {
+  border-color: #86efac;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.badge-item.locked {
+  opacity: 0.6;
+  background: #f8fafc;
+}
+
+.badge-item .badge-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.badge-item.unlocked .badge-ico {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+}
+
+.badge-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-top: 4px;
+  color: #16a34a;
+}
+
+.badge-item.locked .badge-status {
+  color: #94a3b8;
+}
+
+/* Feuille Passeport Auditif */
+.passport-sheet {
+  background: #ffffff;
+  border: 2px solid var(--krys-navy);
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+  box-shadow: 0 8px 24px rgba(0, 45, 98, 0.08);
+}
+
+.passport-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.passport-brand {
+  font-weight: 900;
+  font-size: 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pb-k { color: var(--krys-navy); }
+.pb-a { background-color: var(--krys-red); color: #fff; padding: 2px 6px; border-radius: 4px; }
+
+.passport-title-block h2 {
+  font-size: 1.15rem;
+  color: var(--krys-navy);
+}
+
+.passport-divider {
+  height: 2px;
+  background: linear-gradient(to right, var(--krys-navy), var(--krys-red), var(--krys-navy));
+  margin: 14px 0;
+}
+
+.passport-section h3 {
+  font-size: 0.95rem;
+  color: var(--krys-navy);
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 4px;
+}
+
+.passport-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .passport-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.passport-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pkpi {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.pkpi b {
+  display: block;
+  font-size: 1.15rem;
+  color: var(--krys-navy);
+}
+
+.pkpi small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.passport-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.passport-seal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.seal-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--krys-navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign-box {
+  border: 1px dashed var(--krys-navy);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  color: var(--krys-navy);
+  font-size: 0.85rem;
+  background: #f0f7ff;
+}
+
+/* Impression Passeport Médical */
+@media print {
+  body {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+  .app-header, .bottom-nav, .btn-row, .icon-btn, .page-head {
+    display: none !important;
+  }
+  .app-main {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .passport-sheet {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    padding: 20px !important;
+  }
+}

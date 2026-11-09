@@ -49,37 +49,52 @@ jobs:
 
       - name: Prepare APK for Release
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.2.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.3.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.2.apk
+          path: krys-audition-v1.0.3.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.2
-          name: "Krys Audition – Mon Parcours Auditif (v1.0.2 - Fix Affichage & Sécurisation)"
+          tag_name: v1.0.3
+          name: "Krys Audition – Mon Parcours Auditif (v1.0.3 - Simulateur Sonore, Passeport Médical & Gamification)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.2 Corrigée & Testée)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.3 Enrichie & Sécurisée)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             L'évaluation du prototype est protégée par un code d'accès :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### 🛠️ Correctifs apportés :
-            - Résolution complète du bug de l'écran blanc sous le bandeau bleu.
-            - Masquage des onglets supérieurs tant que le code confidentiel n'a pas été validé.
-            - Affichage immédiat et fluide de l'écran de sécurité et de l'ensemble des modules une fois déverrouillé (Accueil, Entraînement phonétique et vocal dans le silence/bruit, Étalonnage mobile, Répertoire 100+ centres Krys en France, Espace Pro Audioprothésiste).
+            #### ✨ Nouvelles Fonctionnalités Majeures (v1.0.3) :
+            1. **Simulateur d'Environnements Sonores Krys (Immersion Réelle) :**
+               - 4 ambiances sonores calibrées : *Restaurant & Déjeuner animé* (effet cocktail party), *Boulevard & Circulation*, *Cuisine & Vaisselle* (chocs impulsionnels), *Salon & Ventilation continue*.
+               - Lecteur interactif avec égaliseur animé en direct.
+               - Sélecteur de difficulté RSB (+15 dB, +10 dB, +5 dB, 0 dB).
+               - Test de compréhension de phrase directement dans l'ambiance avec révélation masquée.
+               - Explications techniques sur les algorithmes Krys Audition (microphones directionnels, anti-choc, réducteur de bruit binaural).
+            2. **Passeport d'Adaptation Auditive & Bilan Clinique Krys :**
+               - Attestation officielle pour le Médecin ORL et l'audioprothésiste.
+               - Synthèse audiométrique (BIAP, SII vocal, SRT, RSB-50).
+               - Mesure objective de l'observance (séances, temps cumulé, série d'assiduité, précision phonétique).
+               - Fonction d'exportation / impression PDF directe (`window.print()`).
+            3. **Badges d'Assiduité & Récompenses Krys (Gamification) :**
+               - 8 étapes clés valorisées pour motiver le patient tout au long de ses 120 premiers jours.
+            4. **Synergie Krys Optique & Audition :**
+               - Guide confort pour porter lunettes et appareils contours sans frottement.
+               - Privilège réseau : 1 contrôle visuel + auditif annuel offert.
+            5. **Mode Démonstration 1-Clic :**
+               - Bouton direct pour charger en 1 seconde un dossier patient complet type (Monique Durand) pour vos présentations en réunion ou en centre.
 
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.0.2.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.2/krys-audition-v1.0.2.apk)**
+            - **[Télécharger krys-audition-v1.0.3.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.3/krys-audition-v1.0.3.apk)**
           files: |
-            krys-audition-v1.0.2.apk
+            krys-audition-v1.0.3.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

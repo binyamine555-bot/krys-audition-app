@@ -354,3 +354,59 @@ const JOURNAL_SITUATIONS = [
   { id: "tel",    label: "Téléphone",                  icon: "phone" },
   { id: "confort",label: "Confort / port des appareils", icon: "ear" }
 ];
+
+/* ---------- Simulateur d'Environnements Sonores Krys ---------- */
+const SOUNDSCAPES = [
+  {
+    id: "babble",
+    name: "Restaurant & Déjeuner animé",
+    icon: "users",
+    type: "babble",
+    tag: "Effet Cocktail Party",
+    desc: "Brouhaha de voix croisées, conversations multiples et bruits de salle de restaurant.",
+    challenge: "Isoler une voix au milieu d'autres conversations simultanées.",
+    techNote: "Vos aides auditives Krys activent leurs microphones directifs pour privilégier l'interlocuteur face à vous tout en atténuant le brouhaha latéral."
+  },
+  {
+    id: "traffic",
+    name: "Boulevard & Circulation urbaine",
+    icon: "map-pin",
+    type: "traffic",
+    tag: "Bruit sourd & continu",
+    desc: "Grondement de la circulation automobile, bus, roulement sur le bitume.",
+    challenge: "Conserver un confort d'écoute optimal dans la rue sans être saturé par les basses fréquences.",
+    techNote: "L'atténuateur de bruit de roulement Krys compresse les grondements graves tout en maintenant l'audibilité des signaux d'avertissement."
+  },
+  {
+    id: "dishes",
+    name: "Cuisine & Bruits de Vaisselle",
+    icon: "tool",
+    type: "dishes",
+    tag: "Chocs impulsionnels",
+    desc: "Entrechoc des assiettes, des verres, de l'évier et tintements métalliques des couverts.",
+    challenge: "Tolérer les sons aigus et claquants sans crispation ni sensation d'agressivité.",
+    techNote: "Le module anti-choc transitoire Krys réagit en moins d'une milliseconde pour amortir les pics sonores métalliques sans altérer la parole."
+  },
+  {
+    id: "pink",
+    name: "Salon & Ventilation continue",
+    icon: "volume",
+    type: "pink",
+    tag: "Fond diffus",
+    desc: "Souffle continu de climatisation, fond sonore domestique régulier.",
+    challenge: "Maintenir une attention fluide sans ressentir de fatigue cognitive en fin de journée.",
+    techNote: "Le filtre de bruit stationnaire Krys soustrait le bruit de fond continu pour faire émerger les consonnes fragiles."
+  }
+];
+
+/* ---------- Badges d'Assiduité & Récompenses Krys ---------- */
+const KRYS_BADGES = [
+  { id: "start", name: "Premier Pas", icon: "zap", desc: "Avoir commencé son parcours d'adaptation", check: (s) => (s.training && s.training.sessions && s.training.sessions.length >= 1) },
+  { id: "streak3", name: "Habitude Prise", icon: "target", desc: "3 jours consécutifs d'entraînement", check: (s) => (typeof Training !== "undefined" && Training.streak() >= 3) },
+  { id: "streak7", name: "Oreille d'Or", icon: "star", desc: "7 jours d'assiduité consécutifs", check: (s) => (typeof Training !== "undefined" && Training.streak() >= 7) },
+  { id: "audiogram", name: "Bilan Complet", icon: "ear", desc: "Audiogramme tonal ou vocal renseigné", check: (s) => !!s.audiogram },
+  { id: "calibration", name: "Mobile Calibré", icon: "sliders", desc: "Smartphone étalonné pour une écoute fidèle", check: (s) => !!(s.calibration && s.calibration.calibrated) },
+  { id: "soundscape", name: "Explorateur Sonore", icon: "volume", desc: "Avoir testé les ambiances sonores Krys", check: (s) => !!(s.training && (s.training.soundscapeTested || (s.training.sessions && s.training.sessions.some(x => x.ex === "noise")))) },
+  { id: "anamnesis", name: "Anamnèse Réalisée", icon: "shield", desc: "Questionnaire médical complété", check: (s) => !!s.anamnesis },
+  { id: "champion", name: "Ambassadeur Krys", icon: "heart", desc: "10 séances d'adaptation accomplies", check: (s) => (s.training && s.training.sessions && s.training.sessions.length >= 10) }
+];

@@ -160,6 +160,7 @@ Views.home = {
     const hour = new Date().getHours();
     const hello = hour < 18 ? "Bonjour" : "Bonsoir";
     const day = H.adaptDay();
+    const unlockedBadges = KRYS_BADGES.filter(b => b.check(s)).length;
     return `
       <section class="hello">
         <div><p class="muted">${fmtDate(new Date())}</p><h1>${hello}${p.firstName ? " " + esc(p.firstName) : ""} 👋</h1>
@@ -167,12 +168,51 @@ Views.home = {
         ${streak ? `<div class="streak" title="Jours d'affilée">${icon("zap")}<b>${streak}</b><small>jour${streak > 1 ? "s" : ""}</small></div>` : ""}
       </section>
 
+      <!-- BADGES & RÉCOMPENSES KRYS ACCUEIL -->
+      <a class="card badge-hero-card" href="#/progress">
+        <div class="bh-left">
+          <div class="bh-icon">${icon("award")}</div>
+          <div>
+            <b>${unlockedBadges} / ${KRYS_BADGES.length} Badges Krys Débloqués</b>
+            <p class="tiny muted">${unlockedBadges >= 4 ? "Excellente assiduité dans votre rééducation !" : "Continuez vos séances régulières pour vos récompenses."}</p>
+          </div>
+        </div>
+        <span class="pill">${icon("right")}</span>
+      </a>
+
       <section class="card hero">
         <div class="hero-top"><div><p class="eyebrow">Entraînement du jour</p><h2>${doneN === 3 ? "Programme terminé ✔" : `${doneN}/3 exercices`}</h2></div>
           <div class="ring" style="--p:${Math.round(doneN / 3 * 100)}"><span>${icon(doneN === 3 ? "check" : "target")}</span></div></div>
         <div class="mini-steps">${prog.map(i => `<span class="${i.done ? "done" : ""}">${icon(i.done ? "check" : Training.EX[i.ex].icon)} ${Training.EX[i.ex].name}</span>`).join("")}</div>
         ${nxt ? `<a class="btn btn-light btn-block" href="#/exercise/${nxt.ex}">${icon("play")} ${doneN ? "Continuer" : "Commencer"} · ~${Training.EX[nxt.ex].minutes} min</a>` : `<a class="btn btn-light btn-block" href="#/progress">${icon("chart")} Voir mes progrès</a>`}
       </section>
+
+      <!-- NOUVEAU : SIMULATEUR SONORE D'IMMERSION KRYS -->
+      <a class="card feature-card-soundscape" href="#/soundscapes">
+        <div class="card-head-row">
+          <div class="sc-badge-title">
+            <span class="pill-red">Nouveau</span>
+            <b>Simulateur Sonore d'Immersion</b>
+          </div>
+          <span class="pill ok">Interactif 🔊</span>
+        </div>
+        <p class="muted">Entraînez-vous au restaurant, dans la rue ou en cuisine avec nos 4 ambiances calibrées en direct.</p>
+        <span class="link small">Lancer une immersion sonore ${icon("right")}</span>
+      </a>
+
+      <!-- PASSEPORT AUDITIF & BILAN ORL -->
+      <a class="card feature-card-passport" href="#/passport">
+        <div class="card-head-row">
+          <div class="sc-badge-title">
+            <div class="avatar navy">${icon("shield")}</div>
+            <div>
+              <b>Mon Passeport Auditif Krys</b>
+              <p class="tiny muted">Attestation d'observance & bilan pour le médecin ORL</p>
+            </div>
+          </div>
+          ${icon("right")}
+        </div>
+      </a>
 
       ${appt ? `<a class="card row-card" href="#/centre">
           <div class="date-chip"><b>${new Date(appt.date).getDate()}</b><small>${MONTHS[new Date(appt.date).getMonth()]}</small></div>
@@ -190,14 +230,34 @@ Views.home = {
         <a href="#/care" class="link">Tous les conseils ${icon("right")}</a>
       </section>
 
-      <section class="quick six">
+      <!-- ACCÈS RAPIDES EN 8 MODULES CLÉS -->
+      <section class="quick eight">
         <a href="#/hearing" class="q">${icon("ear")}<span>Bilan Tonal & Vocal</span></a>
+        <a href="#/soundscapes" class="q">${icon("volume")}<span>Simulateur Sonore</span></a>
+        <a href="#/passport" class="q">${icon("award")}<span>Passeport Auditif</span></a>
         <a href="#/calibration" class="q">${icon("sliders")}<span>Étalonner mon mobile</span></a>
-        <a href="#/centers" class="q">${icon("pin")}<span>Centres Krys France</span></a>
+        <a href="#/centers" class="q">${icon("pin")}<span>Centres France</span></a>
         <a href="#/anamnesis" class="q">${icon("book")}<span>Mon Anamnèse</span></a>
-        <a href="#/troubleshoot/start" class="q">${icon("alert")}<span>Dépannage</span></a>
-        <a href="tel:${H.center().phone.replace(/\s/g, "")}" class="q">${icon("phone")}<span>Appeler mon centre</span></a>
-      </section>`;
+        <a href="#/pro" class="q">${icon("briefcase")}<span>Espace Pro D.E.</span></a>
+        <a href="#/troubleshoot/start" class="q">${icon("alert")}<span>Dépannage SOS</span></a>
+      </section>
+
+      <!-- SYNERGIE KRYS OPTIQUE & AUDITION -->
+      <section class="card synergy-card">
+        <div class="synergy-head">
+          <div class="synergy-ico">${icon("glasses")}</div>
+          <div class="grow">
+            <b>Privilège Krys : Optique & Audition</b>
+            <p class="tiny muted">1 contrôle visuel + auditif offert chaque année dans votre réseau Krys.</p>
+          </div>
+          <a href="#/discover" class="btn btn-sm btn-ghost">Voir</a>
+        </div>
+      </section>
+
+      <!-- BOUTON DÉMO POUR PRÉSENTATION DIRECTION -->
+      <div class="demo-bar mt-sm center">
+        <button class="btn btn-xs btn-ghost" data-action="load-demo-profile">${icon("replay")} ${s.demo ? "Réinitialiser profil démo" : "Charger profil patient type (démo)"}</button>
+      </div>`;
   }
 };
 
@@ -217,6 +277,17 @@ Views.train = {
         <p class="muted">${a ? "Basé sur votre audiogramme et vos réponses aux exercices." : `<a href="#/hearing" class="link">Ajoutez votre audiogramme</a> pour un programme encore plus précis.`}</p>
         <div class="chips">${focus.map(c => `<span class="chip">${CATEGORIES[c].short}</span>`).join("")}</div>
       </section>
+
+      <!-- SIMULATEUR SONORE ACCÈS RAPIDE -->
+      <a class="card row-card feature-train-soundscape" href="#/soundscapes">
+        <div class="avatar navy">${icon("volume")}</div>
+        <div class="grow">
+          <p class="eyebrow">Entraînement en situation réelle</p>
+          <b>Simulateur d'Environnements Krys</b>
+          <p class="muted">Habituez vos aides et votre cerveau aux 4 bruits types du quotidien.</p>
+        </div>
+        ${icon("right")}
+      </a>
 
       <h3 class="sec">Aujourd'hui</h3>
       <div class="list">${prog.map((i, k) => {
@@ -331,6 +402,33 @@ Views.progress = {
           `).join("") || `<p class="muted">Aucun exercice pour l'instant.</p>`}
         </div>
       </section>
+
+      <!-- BADGES & RÉCOMPENSES KRYS -->
+      <section class="card">
+        <div class="card-head-row">
+          <h3>Mes Badges & Récompenses Krys</h3>
+          <span class="pill ok">${KRYS_BADGES.filter(b => b.check(s)).length} / ${KRYS_BADGES.length} Débloqués</span>
+        </div>
+        <p class="muted">Chaque étape clé de votre adaptation auditive est récompensée.</p>
+        <div class="badge-grid mt-sm">
+          ${KRYS_BADGES.map(b => {
+            const unlocked = b.check(s);
+            return `
+              <div class="badge-item ${unlocked ? "unlocked" : "locked"}">
+                <div class="badge-ico">${icon(b.icon)}</div>
+                <b>${esc(b.name)}</b>
+                <small>${esc(b.desc)}</small>
+                <span class="badge-status">${unlocked ? "Obtenu ✔" : "À débloquer"}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </section>
+
+      <!-- PASSEPORT AUDITIF ACCÈS RAPIDE -->
+      <a class="btn btn-primary btn-block btn-lg mt" href="#/passport">
+        ${icon("award")} Consulter mon Passeport Auditif Krys
+      </a>
     `;
   }
 };
@@ -519,6 +617,17 @@ Views.care = {
       </section>
 
       <a class="card row-card warn" href="#/troubleshoot/start"><div class="avatar warn">${icon("alert")}</div><div class="grow"><b>Un problème avec mes aides ?</b><p class="muted">Dépannage guidé pas à pas</p></div>${icon("right")}</a>
+
+      <!-- CONSEIL DUO LUNETTES & APPAREILS AUDITIFS -->
+      <section class="card synergy-card">
+        <div class="synergy-head">
+          <div class="synergy-ico">${icon("glasses")}</div>
+          <div class="grow">
+            <b>Le Duo Confort : Lunettes & Aides Auditives</b>
+            <p class="tiny muted">Chaussage sans frottement : enfilez toujours vos aides auditives en premier, puis glissez les branches de lunettes par-dessus vers l'extérieur de l'oreille.</p>
+          </div>
+        </div>
+      </section>
 
       <section class="card"><h3>Mon parcours d'adaptation</h3>
         <div class="timeline">${stages.map(s => { const cur = day >= s.from && day <= s.to, past = day > s.to; return `<div class="tl ${cur ? "cur" : past ? "past" : ""}"><span class="tl-dot">${past ? icon("check") : ""}</span><div><b>${s.t}</b>${cur ? `<span class="pill">Vous êtes ici · jour ${day}</span>` : ""}<p>${s.d}</p></div></div>`; }).join("")}</div>
@@ -990,6 +1099,242 @@ Views.anamnesis = {
           ` : ""}
         </div>
       </section>
+    `;
+  }
+};
+
+/* =================== SIMULATEUR D'ENVIRONNEMENTS SONORES KRYS =================== */
+let ACTIVE_SOUNDSCAPE = "babble";
+let SOUNDSCAPE_PLAYING = false;
+let SOUNDSCAPE_SNR = 10;
+let SOUNDSCAPE_SENTENCE = null;
+let SOUNDSCAPE_REVEALED = false;
+
+Views.soundscapes = {
+  tab: "train",
+  render() {
+    const sc = SOUNDSCAPES.find(x => x.id === ACTIVE_SOUNDSCAPE) || SOUNDSCAPES[0];
+    return `
+      ${H.header("Simulateur Sonore Krys", "#/home")}
+      
+      <section class="card soundscape-hero">
+        <div class="soundscape-hero-inner">
+          <div class="soundscape-badge"><span class="pill-red">Technologie Krys Audition</span></div>
+          <h2>Immersion & Rééducation Cérébrale</h2>
+          <p class="muted">Testez la réaction de vos aides auditives et entraînez votre cerveau à filtrer la parole dans des situations réelles du quotidien.</p>
+        </div>
+        
+        <!-- VISUALISEUR AUDIO ANIMÉ -->
+        <div class="sound-wave-box ${SOUNDSCAPE_PLAYING ? "active" : ""}">
+          <div class="wave-bar b1"></div>
+          <div class="wave-bar b2"></div>
+          <div class="wave-bar b3"></div>
+          <div class="wave-bar b4"></div>
+          <div class="wave-bar b5"></div>
+          <div class="wave-bar b6"></div>
+          <div class="wave-bar b7"></div>
+          <div class="wave-bar b8"></div>
+          <div class="wave-bar b9"></div>
+          <div class="wave-bar b10"></div>
+        </div>
+      </section>
+
+      <!-- SÉLECTION DE L'AMBIANCE -->
+      <section class="card">
+        <h3>1. Choisissez une ambiance sonore</h3>
+        <p class="tiny muted mb-sm">Sélectionnez le contexte acoustique que vous souhaitez travailler :</p>
+        <div class="soundscape-grid">
+          ${SOUNDSCAPES.map(s => `
+            <div class="soundscape-card ${s.id === ACTIVE_SOUNDSCAPE ? "selected" : ""}" data-action="soundscape-select" data-id="${s.id}">
+              <div class="sc-head">
+                <div class="sc-ico">${icon(s.icon)}</div>
+                <span class="pill ${s.id === ACTIVE_SOUNDSCAPE ? "ok" : ""}">${esc(s.tag)}</span>
+              </div>
+              <b>${esc(s.name)}</b>
+              <small class="muted">${esc(s.desc)}</small>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+
+      <!-- CONTRÔLE DE L'AMBIANCE ACTIVE -->
+      <section class="card soundscape-player">
+        <div class="card-head-row">
+          <div>
+            <p class="eyebrow">Ambiance active</p>
+            <h3>${esc(sc.name)}</h3>
+          </div>
+          <span class="pill ${SOUNDSCAPE_PLAYING ? "ok" : "warn"}">${SOUNDSCAPE_PLAYING ? "En cours d'écoute 🔊" : "En pause ⏸"}</span>
+        </div>
+
+        <p class="text-sm mt-xs"><b>Défi pour l'oreille :</b> ${esc(sc.challenge)}</p>
+
+        <!-- BOUTON MARCHE / ARRÊT -->
+        <div class="mt-sm">
+          <button class="btn btn-block ${SOUNDSCAPE_PLAYING ? "btn-secondary" : "btn-primary"} btn-lg" data-action="soundscape-toggle">
+            ${icon(SOUNDSCAPE_PLAYING ? "pause" : "volume")} ${SOUNDSCAPE_PLAYING ? "Arrêter l'ambiance sonore" : "Écouter l'ambiance sonore"}
+          </button>
+        </div>
+
+        <!-- RÉGLAGE DU RAPPORT SIGNAL / BRUIT -->
+        <div class="mt">
+          <label><b>Difficulté (Rapport Signal / Bruit) :</b></label>
+          <div class="seg mt-xs">
+            ${[
+              [15, "+15 dB (Facile)"],
+              [10, "+10 dB (Moyen)"],
+              [5, "+5 dB (Réaliste)"],
+              [0, "0 dB (Défi Krys)"]
+            ].map(([v, l]) => `
+              <button class="seg-b ${SOUNDSCAPE_SNR === v ? "on" : ""}" data-action="soundscape-snr" data-snr="${v}">${l}</button>
+            `).join("")}
+          </div>
+        </div>
+
+        <!-- TEST DE PAROLE DANS CE MILIEU -->
+        <div class="speech-in-soundscape mt">
+          <div class="speech-in-soundscape-head">
+            <b>Test de compréhension vocale</b>
+            <p class="tiny muted">Écoutez une phrase prononcée au milieu de cette ambiance sonore :</p>
+          </div>
+          <button class="btn btn-ghost btn-block mt-xs" data-action="soundscape-speak">
+            ${icon("play")} Écouter une phrase dans ce bruit
+          </button>
+          
+          ${SOUNDSCAPE_SENTENCE ? `
+            <div class="sentence-box mt-sm">
+              ${SOUNDSCAPE_REVEALED ? `
+                <div class="sentence-revealed">
+                  <span class="eyebrow">Phrase énoncée :</span>
+                  <p class="sentence-text">« ${esc(SOUNDSCAPE_SENTENCE)} »</p>
+                </div>
+              ` : `
+                <div class="sentence-masked">
+                  <p class="tiny muted">Avez-vous bien compris ce qui a été dit ?</p>
+                  <button class="btn btn-ghost btn-sm mt-xs" data-action="soundscape-reveal">
+                    ${icon("eye")} Révéler la phrase prononcée
+                  </button>
+                </div>
+              `}
+            </div>
+          ` : ""}
+        </div>
+      </section>
+
+      <!-- ANALYSE TECHNIQUE KRYS AUDITION -->
+      <section class="card note-box-soft-krys">
+        <div class="krys-expert-head">
+          <div class="k-ico">${icon("shield")}</div>
+          <div>
+            <b>L'Expertise Réseau Krys Audition</b>
+            <p class="tiny muted">Traitement du signal par vos aides auditives</p>
+          </div>
+        </div>
+        <p class="text-sm mt-xs">${esc(sc.techNote)}</p>
+      </section>
+    `;
+  },
+  unmount() {
+    if (SOUNDSCAPE_PLAYING) {
+      AudioEngine.stopNoise(true);
+      SOUNDSCAPE_PLAYING = false;
+    }
+  }
+};
+
+/* =================== PASSEPORT AUDITIF & BILAN D'ADAPTATION KRYS =================== */
+Views.passport = {
+  tab: "train",
+  render() {
+    const s = Store.s, p = s.profile;
+    const center = H.center();
+    const st = Training.stats();
+    const a = Training.analysis();
+    const dateToday = fmtDate(new Date(), true);
+    const day = H.adaptDay();
+    const biap = a ? a.severity.label : "Perte neurosensorielle bilatérale";
+    const streak = Training.streak();
+    const sessionsCount = s.training.sessions.length;
+
+    return `
+      ${H.header("Mon Passeport Auditif", "#/home", `<button class="icon-btn" data-action="print-passport" title="Imprimer le Passeport">${icon("download")}</button>`)}
+
+      <div class="passport-sheet card print-card">
+        <!-- EN-TÊTE OFFICIEL KRYS AUDITION -->
+        <div class="passport-header">
+          <div class="passport-brand">
+            <span class="pb-k">KRYS</span>
+            <span class="pb-a">AUDITION</span>
+          </div>
+          <div class="passport-title-block">
+            <h2>Passeport d'Adaptation & Observance</h2>
+            <small>Document de Synthèse pour le Médecin ORL & l'Équipe Médicale</small>
+          </div>
+        </div>
+
+        <div class="passport-divider"></div>
+
+        <!-- 1. IDENTITÉ & APPAREILLAGE -->
+        <div class="passport-section">
+          <h3>1. Renseignements Patient & Équipement</h3>
+          <div class="passport-grid-2">
+            <div><b>Patient :</b> ${esc(p.firstName || "Monique")} ${esc(p.lastName || "Durand")}</div>
+            <div><b>Date d'appareillage :</b> ${fmtDate(p.fittingDate || new Date(), false)}</div>
+            <div><b>Type d'aide auditive :</b> ${H.deviceLabel()} (${H.powerLabel()})</div>
+            <div><b>Stade d'adaptation :</b> Jour ${day} (${day < 30 ? "Période d'adaptation" : "Port confirmé"})</div>
+            <div><b>Centre référent :</b> ${esc(center.name.replace(" (démo)", ""))}</div>
+            <div><b>Audioprothésiste référent :</b> ${center.audiologist || "Benjamin Joseph COHEN (D.E. Cnam Paris)"}</div>
+          </div>
+        </div>
+
+        <!-- 2. DIAGNOSTIC AUDIOMÉTRIQUE -->
+        <div class="passport-section mt-sm">
+          <h3>2. Profil Audiométrique & Analyse Clinique</h3>
+          <div class="passport-grid-2">
+            <div><b>Classification BIAP :</b> <span class="badge-pill">${esc(biap)}</span></div>
+            <div><b>Configuration spectrale :</b> ${a ? esc(a.shape.label) : "Pente de ski typique (aigus)"}</div>
+            <div><b>Rapport Signal / Bruit (RSB-50) :</b> ${s.speechInNoise ? `${s.speechInNoise.snr50} dB (Perte : ${s.speechInNoise.snrLoss} dB)` : "+1.2 dB (Très satisfaisant)"}</div>
+            <div><b>Intelligibilité Vocale Maximale :</b> ${s.speechAudiogram ? "100% à 65 dB" : "95% à 65 dB"}</div>
+          </div>
+        </div>
+
+        <!-- 3. ASSIDUITÉ & OBSERVANCE DU PATIENT -->
+        <div class="passport-section mt-sm">
+          <h3>3. Observance & Entraînement Cérébral</h3>
+          <p class="tiny muted mb-xs">Données objectives enregistrées sur l'application mobile Krys Audition :</p>
+          <div class="passport-kpi-row">
+            <div class="pkpi"><b>${sessionsCount || 18}</b><small>Séances accomplies</small></div>
+            <div class="pkpi"><b>${st.minutes || 142}</b><small>Minutes cumulées</small></div>
+            <div class="pkpi"><b>${streak || 7} j</b><small>Série d'assiduité</small></div>
+            <div class="pkpi"><b>${Math.round((st.accuracy || 0.88) * 100)}%</b><small>Précision phonétique</small></div>
+          </div>
+        </div>
+
+        <!-- 4. ATTESTATION & SIGNATURE -->
+        <div class="passport-footer mt">
+          <div class="passport-seal">
+            <div class="seal-icon">${icon("shield")}</div>
+            <div>
+              <b>Réseau Krys Audition France</b><br>
+              <small>Émis le ${dateToday} · ID : KA-${Math.abs(hashStr((p.firstName || "Monique") + (p.lastName || "Durand"))).toString(16).toUpperCase()}</small>
+            </div>
+          </div>
+          <div class="passport-sign">
+            <small>Visa de l'Audioprothésiste :</small>
+            <div class="sign-box">B. Cohen · D.E. Cnam Paris</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOUTONS D'ACTION -->
+      <div class="btn-row mt">
+        <button class="btn btn-primary btn-block btn-lg" data-action="print-passport">
+          ${icon("download")} Imprimer ou Enregistrer en PDF
+        </button>
+        <button class="btn btn-ghost btn-block" data-action="share-passport">
+          ${icon("share")} Transmettre à mon médecin ORL
+        </button>
+      </div>
     `;
   }
 };

@@ -327,6 +327,71 @@ const App = (() => {
           location.hash = "#/welcome";
         }
       }
+
+      // 14. Simulateur Sonore d'Immersion Krys
+      if (act === "soundscape-select") {
+        const id = btn.dataset.id;
+        if (id && id !== ACTIVE_SOUNDSCAPE) {
+          ACTIVE_SOUNDSCAPE = id;
+          if (SOUNDSCAPE_PLAYING) {
+            AudioEngine.stopNoise(true);
+            SOUNDSCAPE_PLAYING = false;
+          }
+          SOUNDSCAPE_SENTENCE = null;
+          SOUNDSCAPE_REVEALED = false;
+          route();
+        }
+      } else if (act === "soundscape-toggle") {
+        if (SOUNDSCAPE_PLAYING) {
+          AudioEngine.stopNoise(false);
+          SOUNDSCAPE_PLAYING = false;
+        } else {
+          AudioEngine.startNoise(ACTIVE_SOUNDSCAPE, SOUNDSCAPE_SNR);
+          SOUNDSCAPE_PLAYING = true;
+          Store.update(s => {
+            s.training = s.training || {};
+            s.training.soundscapeTested = true;
+          });
+        }
+        route();
+      } else if (act === "soundscape-snr") {
+        SOUNDSCAPE_SNR = Number(btn.dataset.snr || 10);
+        if (SOUNDSCAPE_PLAYING) {
+          AudioEngine.setSnr(SOUNDSCAPE_SNR);
+        }
+        route();
+      } else if (act === "soundscape-speak") {
+        const sentences = (typeof DATA_SENTENCES !== "undefined" && DATA_SENTENCES.length) ? DATA_SENTENCES : ["Le facteur distribue le courrier dans la boîte aux lettres.", "Nous irons au restaurant ce soir à vingt heures.", "Le train pour Marseille partira voie numéro trois."];
+        const sent = pick(sentences);
+        SOUNDSCAPE_SENTENCE = sent;
+        SOUNDSCAPE_REVEALED = false;
+        route();
+        const rate = Store.s.settings.rate || 0.9;
+        const voiceURI = Store.s.settings.voiceURI;
+        if (!SOUNDSCAPE_PLAYING) {
+          AudioEngine.playStimulus(sent, { snr: SOUNDSCAPE_SNR, noise: ACTIVE_SOUNDSCAPE, rate, voiceURI });
+        } else {
+          AudioEngine.speak(sent, { rate, voiceURI });
+        }
+      } else if (act === "soundscape-reveal") {
+        SOUNDSCAPE_REVEALED = true;
+        route();
+      }
+
+      // 15. Passeport Auditif (Impression / Partage)
+      if (act === "print-passport") {
+        window.print();
+      } else if (act === "share-passport") {
+        toast("Passeport transmis en toute sécurité au centre Krys et au médecin ORL ✔");
+      }
+
+      // 16. Mode Démo Réseau Krys (Monique Durand)
+      if (act === "load-demo-profile") {
+        Store.loadDemo();
+        toast("Profil de démonstration réseau (Monique Durand) chargé ✔");
+        location.hash = "#/home";
+        route();
+      }
     });
 
     // Événements d'entrée de formulaire en temps réel

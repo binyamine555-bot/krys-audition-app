@@ -26,9 +26,19 @@ const AudioEngine = (() => {
   }
 
   /* ---------- Voix ---------- */
+  window._ttsUtterances = window._ttsUtterances || [];
+
   function loadVoices() {
     if (!("speechSynthesis" in window)) return [];
-    voices = speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("fr"));
+    try {
+      const all = speechSynthesis.getVoices() || [];
+      voices = all.filter(v => v.lang && v.lang.toLowerCase().replace(/_/g, "-").startsWith("fr"));
+      if (!voices.length && all.length) {
+        voices = all.filter(v => (v.name && v.name.toLowerCase().includes("fr")) || (v.lang && v.lang.toLowerCase().includes("fr")));
+      }
+    } catch(e) {
+      voices = [];
+    }
     return voices;
   }
   if ("speechSynthesis" in window) {
@@ -40,8 +50,9 @@ const AudioEngine = (() => {
     if (!voices.length) loadVoices();
     if (voiceURI) { const v = voices.find(x => x.voiceURI === voiceURI); if (v) return v; }
     const prefs = ["Google français", "Microsoft Denise", "Microsoft Hortense", "Amélie", "Thomas", "Audrey"];
-    for (const p of prefs) { const v = voices.find(x => x.name.includes(p)); if (v) return v; }
-    return voices.find(v => v.lang.toLowerCase().startsWith("fr-fr")) || voices[0] || null;
+    for (const p of prefs) { const v = voices.find(x => x.name && x.name.includes(p)); if (v) return v; }
+    const frVoice = voices.find(v => v.lang && v.lang.toLowerCase().replace(/_/g, "-").startsWith("fr"));
+    return frVoice || null;
   }
 
   function hasSpeech() { return "speechSynthesis" in window; }
@@ -50,25 +61,75 @@ const AudioEngine = (() => {
     const { rate = 0.9, volume = 1, voiceURI = null } = opts;
     return new Promise(resolve => {
       if (!hasSpeech()) { resolve(false); return; }
-      speechSynthesis.cancel();
-      // petit délai : contourne un bug Chrome lorsque speak() suit cancel()
+
+      // 1. Débloquer l'état paused si Android a mis en veille le moteur vocal
+      try {
+        if (speechSynthesis.paused) {
+          speechSynthesis.resume();
+        }
+      } catch (e) {}
+
+      // 2. Annuler uniquement si une précédente parole est déjà en cours
+      if (speechSynthesis.speaking) {
+        try { speechSynthesis.cancel(); } catch(e) {}
+      }
+
+      // 3. Délai de transition IPC pour Android
       setTimeout(() => {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = "fr-FR";
-        const v = getVoice(voiceURI);
-        if (v) u.voice = v;
-        u.rate = rate; u.volume = volume; u.pitch = 1;
-        let done = false;
-        const finish = () => { if (!done) { done = true; resolve(true); } };
-        u.onend = finish; u.onerror = finish;
-        // filet de sécurité si onend ne se déclenche pas
-        setTimeout(finish, 1800 + (text.length * 110) / rate);
-        speechSynthesis.speak(u);
-      }, 60);
+        try {
+          if (speechSynthesis.paused) {
+            speechSynthesis.resume();
+          }
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = "fr-FR";
+
+          const v = getVoice(voiceURI);
+          if (v && v.lang && v.lang.toLowerCase().startsWith("fr")) {
+            u.voice = v;
+          }
+          // Note : si aucune voix FR spécifique n'est trouvée, ne PAS forcer une voix étrangère,
+          // laisser le système Android utiliser sa voix par défaut grâce à u.lang = "fr-FR".
+
+          u.rate = rate;
+          u.volume = Math.max(0.9, Math.min(1.0, volume));
+          u.pitch = 1.0;
+
+          let done = false;
+          const finish = () => {
+            if (!done) {
+              done = true;
+              const idx = window._ttsUtterances.indexOf(u);
+              if (idx !== -1) window._ttsUtterances.splice(idx, 1);
+              resolve(true);
+            }
+          };
+
+          u.onend = finish;
+          u.onerror = (err) => {
+            console.warn("TTS Event Error:", err);
+            finish();
+          };
+
+          // Filet de sécurité pour ne jamais bloquer l'interface
+          setTimeout(finish, 2600 + (String(text).length * 160) / rate);
+
+          // Garder une référence forte pour éviter le bug de Garbage Collection Android/Chrome
+          window._ttsUtterances.push(u);
+
+          speechSynthesis.speak(u);
+        } catch(err) {
+          console.warn("TTS Exception:", err);
+          resolve(false);
+        }
+      }, 70);
     });
   }
 
-  function stopSpeech() { if (hasSpeech()) speechSynthesis.cancel(); }
+  function stopSpeech() {
+    if (hasSpeech()) {
+      try { speechSynthesis.cancel(); } catch(e) {}
+    }
+  }
 
   /* ---------- Génération des bruits ---------- */
   function makeBuffer(type) {
@@ -144,8 +205,14 @@ const AudioEngine = (() => {
     return buf;
   }
 
-  /* Gain du bruit pour un RSB donné (dB). RSB 0 ≈ bruit aussi fort que la voix. */
-  function gainForSnr(snr) { return Math.min(3, 1.2 * Math.pow(10, -snr / 20)); }
+  /* Gain du bruit calibré pour un RSB donné (dB).
+     Le bruit est un fond réaliste (doux à modéré) et ne couvre jamais la voix. */
+  function gainForSnr(snr) {
+    if (snr === null || snr === undefined) return 0;
+    // Réduction du gain de base pour que la voix reste toujours au premier plan
+    const g = 0.065 * Math.pow(10, -snr / 20);
+    return Math.min(0.14, Math.max(0.005, g));
+  }
 
   function startNoise(type = "babble", snr = 10) {
     const c = ensureCtx(); if (!c) return;
@@ -194,15 +261,25 @@ const AudioEngine = (() => {
   }
 
   /* Joue un stimulus : bruit (optionnel) + voix, puis coupe le bruit. */
-  async function playStimulus(text, { snr = null, noise = "babble", rate = 0.9, voiceURI = null, lead = 700 } = {}) {
+  async function playStimulus(text, { snr = null, noise = "babble", rate = 0.9, voiceURI = null, lead = 450 } = {}) {
     ensureCtx();
+    if ("speechSynthesis" in window && speechSynthesis.paused) {
+      try { speechSynthesis.resume(); } catch(e) {}
+    }
     if (snr !== null && snr !== undefined) {
       startNoise(noise, snr);
       await new Promise(r => setTimeout(r, lead));
     }
-    await speak(text, { rate, voiceURI });
-    if (snr !== null && snr !== undefined) {
-      await new Promise(r => setTimeout(r, 350));
+    // Ducking acoustique : légère baisse du bruit pendant la prononciation du mot
+    if (noiseGain && ctx && snr !== null && snr !== undefined) {
+      const g = gainForSnr(snr);
+      noiseGain.gain.setTargetAtTime(g * 0.65, ctx.currentTime, 0.05);
+    }
+    await speak(text, { rate, voiceURI, volume: 1.0 });
+    if (noiseGain && ctx && snr !== null && snr !== undefined) {
+      const g = gainForSnr(snr);
+      noiseGain.gain.setTargetAtTime(g, ctx.currentTime, 0.08);
+      await new Promise(r => setTimeout(r, 400));
       stopNoise();
     }
   }

@@ -21,8 +21,23 @@ const AudioEngine = (() => {
       master.gain.value = 1;
       master.connect(ctx.destination);
     }
-    if (ctx.state === "suspended") ctx.resume();
+    if (ctx.state === "suspended") {
+      try { ctx.resume(); } catch(e) {}
+    }
     return ctx;
+  }
+
+  // Déverrouillage automatique du contexte audio dès la première interaction utilisateur sur mobile
+  if (typeof document !== "undefined") {
+    const unlockAudio = () => {
+      ensureCtx();
+      document.removeEventListener("touchstart", unlockAudio);
+      document.removeEventListener("touchend", unlockAudio);
+      document.removeEventListener("click", unlockAudio);
+    };
+    document.addEventListener("touchstart", unlockAudio, { passive: true });
+    document.addEventListener("touchend", unlockAudio, { passive: true });
+    document.addEventListener("click", unlockAudio, { passive: true });
   }
 
   /* ---------- Voix ---------- */
@@ -207,32 +222,78 @@ const AudioEngine = (() => {
 
   /* Gain du bruit calibré pour un RSB donné (dB).
      Le bruit est un fond réaliste (doux à modéré) et ne couvre jamais la voix. */
-  function gainForSnr(snr) {
+  function gainForSnr(snr, isSolo = false) {
     if (snr === null || snr === undefined) return 0;
-    // Réduction du gain de base pour que la voix reste toujours au premier plan
+    if (isSolo) {
+      // Pour l'écoute d'ambiance seule dans le simulateur : niveau clair, confortable et audible sur haut-parleur mobile
+      const g = 0.32 * Math.pow(10, -snr / 30);
+      return Math.min(0.35, Math.max(0.14, g));
+    }
+    // Pour l'entraînement avec parole : fond doux pour faire ressortir la voix
     const g = 0.065 * Math.pow(10, -snr / 20);
     return Math.min(0.14, Math.max(0.005, g));
   }
 
-  function startNoise(type = "babble", snr = 10) {
+  let originalNoiseGain = 0;
+
+  function startNoise(type = "babble", snr = 10, isSolo = false) {
     const c = ensureCtx(); if (!c) return;
+    if (c.state === "suspended") {
+      try { c.resume(); } catch(e) {}
+    }
     stopNoise(true);
     const buf = makeBuffer(type === "babble" ? "babble" : type);
     noiseSrc = c.createBufferSource();
     noiseSrc.buffer = buf; noiseSrc.loop = true;
     noiseFilter = c.createBiquadFilter();
-    noiseFilter.type = type === "babble" ? "bandpass" : "lowpass";
-    noiseFilter.frequency.value = type === "babble" ? 900 : 6000;
-    noiseFilter.Q.value = type === "babble" ? 0.6 : 0.7;
+    if (type === "babble") {
+      noiseFilter.type = "lowpass";
+      noiseFilter.frequency.value = 3400;
+      noiseFilter.Q.value = 0.5;
+    } else if (type === "traffic") {
+      noiseFilter.type = "lowpass";
+      noiseFilter.frequency.value = 1400;
+      noiseFilter.Q.value = 0.7;
+    } else if (type === "dishes") {
+      noiseFilter.type = "peaking";
+      noiseFilter.frequency.value = 2800;
+      noiseFilter.Q.value = 0.8;
+      noiseFilter.gain.value = 3;
+    } else {
+      noiseFilter.type = "lowpass";
+      noiseFilter.frequency.value = 4000;
+      noiseFilter.Q.value = 0.7;
+    }
     noiseGain = c.createGain();
-    noiseGain.gain.value = 0;
+    const targetGain = gainForSnr(snr, isSolo);
+    originalNoiseGain = targetGain;
+    noiseGain.gain.value = targetGain;
     noiseSrc.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master);
-    noiseSrc.start();
-    noiseGain.gain.setTargetAtTime(gainForSnr(snr), c.currentTime, 0.15);
+    try {
+      noiseSrc.start();
+    } catch(e) {
+      console.warn("Audio start error:", e);
+    }
   }
 
-  function setSnr(snr) {
-    if (noiseGain && ctx) noiseGain.gain.setTargetAtTime(gainForSnr(snr), ctx.currentTime, 0.1);
+  function setSnr(snr, isSolo = false) {
+    if (noiseGain && ctx) {
+      const g = gainForSnr(snr, isSolo);
+      originalNoiseGain = g;
+      noiseGain.gain.setTargetAtTime(g, ctx.currentTime, 0.1);
+    }
+  }
+
+  function duckNoise(factor = 0.35) {
+    if (noiseGain && ctx && originalNoiseGain > 0) {
+      noiseGain.gain.setTargetAtTime(originalNoiseGain * factor, ctx.currentTime, 0.05);
+    }
+  }
+
+  function unduckNoise() {
+    if (noiseGain && ctx && originalNoiseGain > 0) {
+      noiseGain.gain.setTargetAtTime(originalNoiseGain, ctx.currentTime, 0.15);
+    }
   }
 
   function stopNoise(immediate = false) {
@@ -267,17 +328,17 @@ const AudioEngine = (() => {
       try { speechSynthesis.resume(); } catch(e) {}
     }
     if (snr !== null && snr !== undefined) {
-      startNoise(noise, snr);
+      startNoise(noise, snr, false);
       await new Promise(r => setTimeout(r, lead));
     }
     // Ducking acoustique : légère baisse du bruit pendant la prononciation du mot
     if (noiseGain && ctx && snr !== null && snr !== undefined) {
-      const g = gainForSnr(snr);
+      const g = gainForSnr(snr, false);
       noiseGain.gain.setTargetAtTime(g * 0.65, ctx.currentTime, 0.05);
     }
     await speak(text, { rate, voiceURI, volume: 1.0 });
     if (noiseGain && ctx && snr !== null && snr !== undefined) {
-      const g = gainForSnr(snr);
+      const g = gainForSnr(snr, false);
       noiseGain.gain.setTargetAtTime(g, ctx.currentTime, 0.08);
       await new Promise(r => setTimeout(r, 400));
       stopNoise();
@@ -286,5 +347,5 @@ const AudioEngine = (() => {
 
   function stopAll() { stopSpeech(); stopNoise(true); }
 
-  return { ensureCtx, loadVoices, getVoice, hasSpeech, speak, stopSpeech, startNoise, setSnr, stopNoise, stopAll, beep, playStimulus, get voices() { return voices; } };
+  return { ensureCtx, loadVoices, getVoice, hasSpeech, speak, stopSpeech, startNoise, setSnr, duckNoise, unduckNoise, stopNoise, stopAll, beep, playStimulus, get voices() { return voices; } };
 })();

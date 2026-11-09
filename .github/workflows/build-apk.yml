@@ -49,40 +49,40 @@ jobs:
 
       - name: Prepare APK for Release
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.5.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk krys-audition-v1.0.6.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Krys-Audition-APK
-          path: krys-audition-v1.0.5.apk
+          path: krys-audition-v1.0.6.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.5
-          name: "Krys Audition – Mon Parcours Auditif (v1.0.5 - Répertoire National 560+ Centres & Espaces)"
+          tag_name: v1.0.6
+          name: "Krys Audition – Mon Parcours Auditif (v1.0.6 - Correction Simulateur d'Ambiances Sonores)"
           body: |
-            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.5 - Réseau National Exhaustif)
+            ### 📱 Application Mobile Android – Krys Audition (Version 1.0.6 - Simulateur Sonore Actif)
             **Projet porté par Benjamin Joseph COHEN**, Audioprothésiste D.E. Cnam Paris.
 
             #### 🔒 Code d'accès confidentiel :
             - **Code à saisir dans l'application :** `KRYS2026`
 
-            #### 📍 Répertoire exhaustif de plus de 560 Centres & Espaces en France :
-            - **Couverture nationale intégrale :** Plus de 560 centres et espaces Krys Audition répertoriés dans toute la France métropolitaine et d'outre-mer (Guadeloupe, Martinique, Guyane, La Réunion).
-            - **Centres Exclusifs & Espaces Audition :** 283 centres exclusifs d'audiologie avec cabines insonorisées de dernière génération et 283 espaces audition intégrés en synergie Optique & Audition.
-            - **Recherche instantanée :** Recherche fluide par code postal, ville, département ou région.
-            - **Fiche dédiée Benjamin Joseph COHEN :** Audioprothésiste référent D.E. Cnam Paris au centre Paris 11e Bastille.
+            #### 🔊 Correctif Majeur sur le Simulateur d'Ambiances Sonores Krys :
+            - **Cycle de vie réparé :** Correction du routeur qui coupait instantanément le son lors du rafraîchissement du bouton de lecture. Le bouton passe désormais fidèlement en « Arrêter l'ambiance sonore » et les ondes audio s'animent en continu.
+            - **Niveau d'ambiance calibré pour haut-parleur mobile :** Le volume des ambiances (Restaurant, Circulation, Vaisselle, Ventilation) est désormais clairement audible et réaliste lors de l'écoute immersive solo.
+            - **Déverrouillage audio tactile :** Initialisation automatique du moteur Web Audio au premier contact de l'écran pour éviter toute mise en veille par le système Android.
+            - **Ducking acoustique intelligent :** Lors de l'écoute d'une phrase test au milieu de l'ambiance sonore, le bruit s'atténue en douceur pour faire ressortir la voix avec une netteté clinique.
 
-            #### 🔊 Moteur acoustique & Clarté Vocale HD :
-            - Étalonnage parole/bruit de fond optimisé avec ducking acoustique automatique pour un confort d'entraînement parfait.
+            #### 📍 Plus de 560 Centres & Espaces Krys en France :
+            - Répertoire exhaustif métropole et outre-mer (283 centres exclusifs + 283 espaces audition).
 
             #### 📥 Téléchargement direct :
-            - **[Télécharger krys-audition-v1.0.5.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.5/krys-audition-v1.0.5.apk)**
+            - **[Télécharger krys-audition-v1.0.6.apk](https://github.com/binyamine555-bot/krys-audition-app/releases/download/v1.0.6/krys-audition-v1.0.6.apk)**
           files: |
-            krys-audition-v1.0.5.apk
+            krys-audition-v1.0.6.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

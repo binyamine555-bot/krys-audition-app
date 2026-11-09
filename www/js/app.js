@@ -19,7 +19,7 @@ const App = (() => {
     const headerRight = document.querySelector(".header-right");
     if (!Store.s.unlocked) {
       if (headerRight) headerRight.style.display = "none";
-      if (curView && Views[curView] && Views[curView].unmount) {
+      if (curView && curView !== "lock" && Views[curView] && Views[curView].unmount) {
         Views[curView].unmount();
       }
       curView = "lock";
@@ -35,11 +35,12 @@ const App = (() => {
       return;
     }
 
-    if (curView && Views[curView] && Views[curView].unmount) {
+    const viewKey = path || "home";
+
+    // Démonter uniquement si l'on quitte réellement l'écran en cours
+    if (curView && curView !== viewKey && Views[curView] && Views[curView].unmount) {
       Views[curView].unmount();
     }
-
-    const viewKey = path || "home";
     const v = Views[viewKey] || Views.home;
     curView = viewKey;
 
@@ -335,7 +336,7 @@ const App = (() => {
           ACTIVE_SOUNDSCAPE = id;
           if (SOUNDSCAPE_PLAYING) {
             AudioEngine.stopNoise(true);
-            SOUNDSCAPE_PLAYING = false;
+            AudioEngine.startNoise(ACTIVE_SOUNDSCAPE, SOUNDSCAPE_SNR, true);
           }
           SOUNDSCAPE_SENTENCE = null;
           SOUNDSCAPE_REVEALED = false;
@@ -346,7 +347,7 @@ const App = (() => {
           AudioEngine.stopNoise(false);
           SOUNDSCAPE_PLAYING = false;
         } else {
-          AudioEngine.startNoise(ACTIVE_SOUNDSCAPE, SOUNDSCAPE_SNR);
+          AudioEngine.startNoise(ACTIVE_SOUNDSCAPE, SOUNDSCAPE_SNR, true);
           SOUNDSCAPE_PLAYING = true;
           Store.update(s => {
             s.training = s.training || {};
@@ -357,7 +358,7 @@ const App = (() => {
       } else if (act === "soundscape-snr") {
         SOUNDSCAPE_SNR = Number(btn.dataset.snr || 10);
         if (SOUNDSCAPE_PLAYING) {
-          AudioEngine.setSnr(SOUNDSCAPE_SNR);
+          AudioEngine.setSnr(SOUNDSCAPE_SNR, true);
         }
         route();
       } else if (act === "soundscape-speak") {
@@ -371,7 +372,10 @@ const App = (() => {
         if (!SOUNDSCAPE_PLAYING) {
           AudioEngine.playStimulus(sent, { snr: SOUNDSCAPE_SNR, noise: ACTIVE_SOUNDSCAPE, rate, voiceURI });
         } else {
-          AudioEngine.speak(sent, { rate, voiceURI });
+          AudioEngine.duckNoise(0.35);
+          AudioEngine.speak(sent, { rate, voiceURI }).then(() => {
+            AudioEngine.unduckNoise();
+          });
         }
       } else if (act === "soundscape-reveal") {
         SOUNDSCAPE_REVEALED = true;
